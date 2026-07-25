@@ -1,6 +1,13 @@
-﻿using OCCPort.Common;
+﻿global using TColStd_SequenceOfInteger = TKernel.NCollection_Sequence<int>;
+global using TColStd_HSequenceOfReal = TKernel.NCollection_Sequence<double>;
+
+using OCCPort.Common;
+using System;
+using System.Reflection.Metadata;
+using System.Security.Cryptography;
 using TKernel;
 using TKG2d;
+using TKG3d;
 using TKMath;
 
 namespace TKG3d
@@ -38,7 +45,7 @@ namespace TKG3d
         gp_Lin myLin;
         Adaptor3d_Surface myFirstSurf;
         Adaptor3d_Surface myLastSurf;
-        //TColStd_HSequenceOfReal) myIntervals;
+        TColStd_HSequenceOfReal myIntervals;
         GeomAbs_Shape myIntCont;
         public override GeomAbs_CurveType _GetType()
         {
@@ -387,9 +394,100 @@ namespace TKG3d
             return myCurve.IsPeriodic();
         }
 
+        // Auxiliary: adds roots of equation to sorted sequence of parameters
+        // along curve, keeping it sorted and avoiding repetitions (within tolerance Tol)
+        static void AddIntervals(TColStd_HSequenceOfReal theParameters,
+                           math_FunctionRoots theRoots, double theTol)
+        {
+            if (!theRoots.IsDone() || theRoots.IsAllNull())
+                return;
+
+            int nsol = theRoots.NbSolutions();
+            for (int i = 1; i <= nsol; i++)
+            {
+                double param = theRoots.Value(i);
+                if (param - theParameters.Value(1) < theTol) // skip param if equal to or less than theParameters(1)
+                    continue;
+                for (int j = 2; j <= theParameters.Length(); ++j)
+                {
+                    double aDelta = theParameters.Value(j) - param;
+                    if (aDelta > theTol)
+                    {
+                        theParameters.InsertBefore(j, param);
+                        break;
+                    }
+                    else if (aDelta >= -theTol) // param == theParameters(j) within Tol
+                        break;
+                }
+            }
+        }
+
         public override int NbIntervals(GeomAbs_Shape S)
         {
-            throw new NotImplementedException();
+            if (S == myIntCont && myIntervals != null)
+                return myIntervals.Length() - 1;
+
+            int nu, nv, nc;
+            nu = mySurface.NbUIntervals(S);
+            nv = mySurface.NbVIntervals(S);
+            nc = myCurve.NbIntervals(S);
+
+            // Allocate the memory for arrays TabU, TabV, TabC only once using the buffer TabBuf.
+            TColStd_Array1OfReal TabBuf = new(1, nu + nv + nc + 3);
+            TColStd_Array1OfReal TabU = new(TabBuf[1], 1, nu + 1);
+            TColStd_Array1OfReal TabV = new(TabBuf[nu + 2], 1, nv + 1);
+            TColStd_Array1OfReal TabC = new(TabBuf[nu + nv + 3], 1, nc + 1);
+
+            int NbSample = 20;
+            double U, V, Tdeb, Tfin;
+            Tdeb = myCurve.FirstParameter();
+            Tfin = myCurve.LastParameter();
+
+            myCurve.Intervals(TabC, S);
+
+            double Tol = Precision.PConfusion() / 10;
+
+            // sorted sequence of parameters defining continuity intervals;
+            // started with own intervals of curve and completed by 
+            // additional points coming from surface discontinuities
+            TColStd_HSequenceOfReal aIntervals = new TColStd_HSequenceOfReal();
+            for (int i = 1; i <= nc + 1; i++)
+            {
+                aIntervals.Append(TabC[i]);
+            }
+
+            if (nu > 1)
+            {
+                mySurface.UIntervals(TabU, S);
+                for (int iu = 2; iu <= nu; iu++)
+                {
+                    U = TabU.Value(iu);
+                    Adaptor3d_InterFunc Func = new(myCurve, U, 1);
+                    math_FunctionRoots Resol = new(Func, Tdeb, Tfin, NbSample, Tol, Tol, Tol, 0.0);
+                    AddIntervals(aIntervals, Resol, Tol);
+                }
+            }
+            if (nv > 1)
+            {
+                mySurface.VIntervals(TabV, S);
+                for (int iv = 2; iv <= nv; iv++)
+                {
+                    V = TabV.Value(iv);
+                    Adaptor3d_InterFunc Func = new(myCurve, V, 2);
+                    math_FunctionRoots Resol = new(Func, Tdeb, Tfin, NbSample, Tol, Tol, Tol, 0.0);
+                    AddIntervals(aIntervals, Resol, Tol);
+                }
+            }
+
+            // for case intervals==1 and first point == last point SequenceOfReal
+            // contains only one value, therefore it is necessary to add second
+            // value into aIntervals which will be equal first value.
+            if (aIntervals.Length() == 1)
+                aIntervals.Append(aIntervals.Value(1));
+
+            ((Adaptor3d_CurveOnSurface)(this)).myIntervals = aIntervals;
+            ((Adaptor3d_CurveOnSurface)(this)).myIntCont = S;
+            return myIntervals.Length() - 1;
         }
 
         public override void Intervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
@@ -405,7 +503,7 @@ namespace TKG3d
         public override double Period()
         {
             if (myType == GeomAbs_CurveType.GeomAbs_Circle ||
-      myType == GeomAbs_CurveType.GeomAbs_Ellipse)
+        myType == GeomAbs_CurveType.GeomAbs_Ellipse)
                 return (2.0 * Math.PI);
 
             return myCurve.Period();
@@ -437,8 +535,8 @@ namespace TKG3d
             double Tol = Precision.PConfusion() / 10;
             if ((Math.Abs(U - FP) < Tol) && (myFirstSurf != null))
             {
-                myCurve.D2(U, UV, DW, D2W);
-                myFirstSurf.D2(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV);
+                myCurve.D2(U, out UV, out DW, out D2W);
+                myFirstSurf.D2(UV.X(), UV.Y(), out P, out D1U, out D1V, out D2U, out D2V, out D2UV);
 
                 V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
                 V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2.0 * DW.X() * DW.Y(), D2UV);
@@ -447,8 +545,8 @@ namespace TKG3d
             else
               if ((Math.Abs(U - LP) < Tol) && (myLastSurf != null))
             {
-                myCurve.D2(U, out UV, out DW, out outD2W);
-                myLastSurf.D2(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV);
+                myCurve.D2(U, out UV, out DW, out D2W);
+                myLastSurf.D2(UV.X(), UV.Y(), out P, out D1U, out D1V, out D2U, out D2V, out D2UV);
 
                 V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
                 V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2.0 * DW.X() * DW.Y(), D2UV);
@@ -457,14 +555,15 @@ namespace TKG3d
             else
                 if (myType == GeomAbs_CurveType.GeomAbs_Line)
             {
-                ElCLib.D1(U, out myLin, out P, out V1);
+                ElCLib.D1(U, myLin, ref P, ref V1);
                 V2.SetCoord(0.0, 0.0, 0.0);
             }
-            else if (myType == GeomAbs_CurveType.GeomAbs_Circle) ElCLib.D2(U, myCirc, P, V1, V2);
+            else if (myType == GeomAbs_CurveType.GeomAbs_Circle)
+                ElCLib.D2(U, myCirc, P, V1, V2);
             else
             {
                 myCurve.D2(U, out UV, out DW, out D2W);
-                mySurface.D2(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV);
+                mySurface.D2(UV.X(), UV.Y(), out P, out D1U, out D1V, out D2U, out D2V, out D2UV);
 
                 V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
                 V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2.0 * DW.X() * DW.Y(), D2UV);

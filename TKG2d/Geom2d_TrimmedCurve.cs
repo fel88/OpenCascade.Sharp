@@ -99,5 +99,10 @@ namespace TKG2d
         {
             throw new NotImplementedException();
         }
+
+        public override void D2(double U, out gp_Pnt2d P, out gp_Vec2d V1, out gp_Vec2d V2)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

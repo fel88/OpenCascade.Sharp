@@ -23,10 +23,47 @@ namespace TKMath
     //! for the equivalent Geom or Geom2d curves.
     public class ElCLib
     {
+        public static void CircleD2(double U,
+                    gp_Ax2 Pos,
+                    double Radius,
+                  out gp_Pnt P,
+                 out gp_Vec V1,
+                   out gp_Vec V2)
+        {
+            V2 = new gp_Vec();
+            V1 = new gp_Vec();
+            P = new gp_Pnt();
+            double Xc = Radius * Math.Cos(U);
+            double Yc = Radius * Math.Sin(U);
+            gp_XYZ Coord0 = new gp_XYZ();
+            gp_XYZ Coord1 = new(Pos.XDirection().XYZ());
+            gp_XYZ Coord2 = new(Pos.YDirection().XYZ());
+            //Point courant :
+            Coord0.SetLinearForm(Xc, Coord1, Yc, Coord2, Pos.Location().XYZ());
+            P.SetXYZ(Coord0);
+            //D1 :
+            Coord0.SetLinearForm(-Yc, Coord1, Xc, Coord2);
+            V1.SetXYZ(Coord0);
+            //D2 :
+            Coord0.SetLinearForm(-Xc, Coord1, -Yc, Coord2);
+            V2.SetXYZ(Coord0);
+        }
 
         public static gp_Pnt2d Value(double U, gp_Lin2d L)
         {
             return ElCLib.LineValue(U, L.Position());
+        }
+
+        public static void D2(
+ double U, gp_Circ C, gp_Pnt P, gp_Vec V1, gp_Vec V2)
+        {
+
+            ElCLib.CircleD2(U, C.Position(), C.Radius(), out P, out V1, out V2);
+        }
+
+        public static void D1(double U, gp_Lin L, ref gp_Pnt P, ref gp_Vec V1)
+        {
+            ElCLib.LineD1(U, L.Position(), ref P, ref V1);
         }
 
         public static double Parameter(gp_Lin2d L, gp_Pnt2d P)
@@ -162,10 +199,12 @@ namespace TKMath
 
         }
 
+        
+
         public static void LineD1(double U,
               gp_Ax1 Pos,
-           ref  gp_Pnt P,
-           ref  gp_Vec V1)
+           ref gp_Pnt P,
+           ref gp_Vec V1)
         {
             gp_XYZ Coord = Pos.Direction().XYZ();
             V1.SetXYZ(Coord);

@@ -391,11 +391,7 @@ namespace OCCPort.Tester
         List<AIS_Shape> shapes = new List<AIS_Shape>();
         private void toolStripButton7_Click(object sender, EventArgs e)
         {
-            var sw = Stopwatch.StartNew();
-            AddBox();
-            sw.Stop();
-            var ms = sw.ElapsedMilliseconds;
-            toolStripStatusLabel1.Text = $"time: {ms}ms";
+
         }
 
         private void toolStripButton8_Click(object sender, EventArgs e)
@@ -500,60 +496,7 @@ namespace OCCPort.Tester
 
         private void toolStripButton12_Click(object sender, EventArgs e)
         {
-            var d = AutoDialog.DialogHelpers.StartDialog();
-            d.AddDouble("cx", "X");
-            d.AddDouble("cy", "Y");
-            d.AddDouble("cz", "Z");
-            d.AddBoolField("hole", "hole");
 
-
-            d.AddDouble("w", "Width", 100);
-            d.AddDouble("h", "Height", 50);
-
-            if (!d.ShowDialog())
-                return;
-
-            var cx = d.GetDouble("cx");
-            var cy = d.GetDouble("cy");
-            var cz = d.GetDouble("cz");
-            var w = d.GetDouble("w");
-            var h = d.GetDouble("h");
-            var withHole = d.GetBoolField("hole");
-
-            double area = w * h;
-            if (Math.Abs(area) < (0.0))
-            {
-                MessageBox.Show("zero area. operation incorrect", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            var center = new Vector3d(cx, cy, cz);
-            if (withHole)
-            {
-                /*
-                 * gp_Pnt ip1(-30, -10, 0);
-		gp_Pnt ip2(30, -10, 0);
-		gp_Pnt ip3(30, 10, 0);
-		gp_Pnt ip4(-30, 10, 0);
-
-                 */
-                MakeRectFaceWithHole([center + new Vector3d(-w / 2, -h / 2, 0),
-                         center + new Vector3d(w / 2, -h / 2, 0),
-                         center + new Vector3d(w / 2, h / 2, 0),
-                         center + new Vector3d(-w / 2, h / 2, 0)], [new Vector3d(-30,-10,0),
-                         new Vector3d(30,-10,0),
-                         new Vector3d(30,10,0),
-                         new Vector3d(-30,10,0)
-                         ]);
-            }
-            else
-            {
-
-                MakeRectFace(center + new Vector3d(-w / 2, -h / 2, 0),
-                         center + new Vector3d(w / 2, -h / 2, 0),
-                         center + new Vector3d(w / 2, h / 2, 0),
-                         center + new Vector3d(-w / 2, h / 2, 0));
-
-            }
 
 
         }
@@ -686,6 +629,152 @@ namespace OCCPort.Tester
 
         private void toolStripButton13_Click(object sender, EventArgs e)
         {
+
+        }
+
+        private void toolStripButton14_Click(object sender, EventArgs e)
+        {
+            GravityViewManager?.View?.FitAll();
+            GravityViewManager?.View?.ZFitAll();
+        }
+
+        private void toolStripButton15_Click(object sender, EventArgs e)
+        {
+            // Clears all objects from the context and releases presentation memory
+            myAISContext.RemoveAll(true);
+            shapes.Clear();
+        }
+
+        private void toolStripButton16_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void toolStripButton17_Click(object sender, EventArgs e)
+        {
+            // Perform the Boolean Fuse (Union)
+            BRepAlgoAPI_Fuse fuseAlg = new(shapes[0].Shape(), shapes[1].Shape());
+            fuseAlg.Build();
+
+            // Retrieve the resulting shape
+            TopoDS_Shape fusedResult = fuseAlg.Shape();
+            var shape = new AIS_Shape(fusedResult);
+
+            myAISContext.Display(shape, true);
+            myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
+            myAISContext.UpdateCurrentViewer();
+
+        }
+
+        private void toolStripButton18_Click(object sender, EventArgs e)
+        {
+            var d = AutoDialog.DialogHelpers.StartDialog();
+            d.AddDouble("radius", "Radius", 10, 1, 1000);
+
+
+
+            if (!d.ShowDialog())
+                return;
+
+            var radius = d.GetDouble("radius");
+
+
+            var sw = Stopwatch.StartNew();
+
+
+            BRepPrimAPI_MakeSphere mkCylinder = new BRepPrimAPI_MakeSphere(radius);
+
+            // Get the resulting TopoDS_Shape
+            TopoDS_Shape myCylinder = mkCylinder.Shape();
+            var shape = new AIS_Shape(myCylinder);
+
+            myAISContext.Display(shape, true);
+            myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
+            myAISContext.UpdateCurrentViewer();
+
+            sw.Stop();
+            var ms = sw.ElapsedMilliseconds;
+            toolStripStatusLabel1.Text = $"time: {ms}ms";
+        }
+
+        private void toolStripButton19_Click(object sender, EventArgs e)
+        {
+            var sw = Stopwatch.StartNew();
+            AddBox();
+            sw.Stop();
+            var ms = sw.ElapsedMilliseconds;
+            toolStripStatusLabel1.Text = $"time: {ms}ms";
+        }
+
+        private void toolStripButton7_Click_1(object sender, EventArgs e)
+        {
+            var d = AutoDialog.DialogHelpers.StartDialog();
+            d.AddDouble("radius", "Radius", 10, 1, 1000);
+            d.AddDouble("h", "Height", 50, 1, 1000);
+
+
+            if (!d.ShowDialog())
+                return;
+
+            var radius = d.GetDouble("radius");
+            var h = d.GetDouble("h");
+
+            var sw = Stopwatch.StartNew();
+
+            // Create the cylinder
+            BRepPrimAPI_MakeCylinder mkCylinder = new BRepPrimAPI_MakeCylinder(radius, h);
+
+            // Get the resulting TopoDS_Shape
+            TopoDS_Shape myCylinder = mkCylinder.Shape();
+            var shape = new AIS_Shape(myCylinder);
+
+            myAISContext.Display(shape, true);
+            myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
+            myAISContext.UpdateCurrentViewer();
+
+
+            sw.Stop();
+            var ms = sw.ElapsedMilliseconds;
+            toolStripStatusLabel1.Text = $"time: {ms}ms";
+        }
+
+        private void toolStripButton20_Click(object sender, EventArgs e)
+        {
+            var d = AutoDialog.DialogHelpers.StartDialog();
+            d.AddDouble("radius", "Radius", 10, 1, 1000);
+
+
+
+            if (!d.ShowDialog())
+                return;
+
+            var radius = d.GetDouble("radius");
+
+
+            var sw = Stopwatch.StartNew();
+
+            gp_Pnt center = new(0.0, 0.0, 0.0);
+            gp_Dir normal = new(0.0, 0.0, 1.0);
+            gp_Circ circle = new(new gp_Ax2(center, normal), radius);
+
+            // Convert geometric circle to topological edge and wire
+            TopoDS_Edge edge = new BRepBuilderAPI_MakeEdge(circle);
+            TopoDS_Wire wire = new BRepBuilderAPI_MakeWire(edge);
+
+            // Generate the planar circular face
+            TopoDS_Face face = new BRepBuilderAPI_MakeFace(wire, true);
+            var shape = new AIS_Shape(face);
+            myAISContext.Display(shape, true);
+            myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
+            myAISContext.UpdateCurrentViewer();
+
+            sw.Stop();
+            var ms = sw.ElapsedMilliseconds;
+            toolStripStatusLabel1.Text = $"time: {ms}ms";
+        }
+
+        private void toolStripButton8_Click_1(object sender, EventArgs e)
+        {
             var d = AutoDialog.DialogHelpers.StartDialog();
 
             d.AddInt("qty", "Qty", 8, 3, 60);
@@ -718,113 +807,62 @@ namespace OCCPort.Tester
             MakeFace(pp.ToArray());
         }
 
-        private void toolStripButton14_Click(object sender, EventArgs e)
-        {
-            GravityViewManager?.View?.FitAll();
-            GravityViewManager?.View?.ZFitAll();
-        }
-
-        private void toolStripButton15_Click(object sender, EventArgs e)
-        {
-            // Clears all objects from the context and releases presentation memory
-            myAISContext.RemoveAll(true);
-            shapes.Clear();
-        }
-
-        private void toolStripButton16_Click(object sender, EventArgs e)
+        private void toolStripButton13_Click_1(object sender, EventArgs e)
         {
             var d = AutoDialog.DialogHelpers.StartDialog();
-            d.AddDouble("radius", "Radius", 10, 1, 1000);
-            d.AddDouble("h", "Height", 50, 1, 1000);
-            d.AddBoolField("2d", "2D");
+            d.AddDouble("cx", "X");
+            d.AddDouble("cy", "Y");
+            d.AddDouble("cz", "Z");
+            d.AddBoolField("hole", "hole");
+
+
+            d.AddDouble("w", "Width", 100);
+            d.AddDouble("h", "Height", 50);
 
             if (!d.ShowDialog())
                 return;
 
-            var radius = d.GetDouble("radius");
+            var cx = d.GetDouble("cx");
+            var cy = d.GetDouble("cy");
+            var cz = d.GetDouble("cz");
+            var w = d.GetDouble("w");
             var h = d.GetDouble("h");
-            var flat = d.GetBoolField("2d");
-            var sw = Stopwatch.StartNew();
-            if (flat)
+            var withHole = d.GetBoolField("hole");
+
+            double area = w * h;
+            if (Math.Abs(area) < (0.0))
             {
-                gp_Pnt center = new(0.0, 0.0, 0.0);
-                gp_Dir normal = new(0.0, 0.0, 1.0);
-                gp_Circ circle = new(new gp_Ax2(center, normal), radius);
+                MessageBox.Show("zero area. operation incorrect", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            var center = new Vector3d(cx, cy, cz);
+            if (withHole)
+            {
+                /*
+                 * gp_Pnt ip1(-30, -10, 0);
+		gp_Pnt ip2(30, -10, 0);
+		gp_Pnt ip3(30, 10, 0);
+		gp_Pnt ip4(-30, 10, 0);
 
-                // Convert geometric circle to topological edge and wire
-                TopoDS_Edge edge = new BRepBuilderAPI_MakeEdge(circle);
-                TopoDS_Wire wire = new BRepBuilderAPI_MakeWire(edge);
-
-                // Generate the planar circular face
-                TopoDS_Face face = new BRepBuilderAPI_MakeFace(wire, true);
-                var shape = new AIS_Shape(face);
-                myAISContext.Display(shape, true);
-                myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
-                myAISContext.UpdateCurrentViewer();
+                 */
+                MakeRectFaceWithHole([center + new Vector3d(-w / 2, -h / 2, 0),
+                         center + new Vector3d(w / 2, -h / 2, 0),
+                         center + new Vector3d(w / 2, h / 2, 0),
+                         center + new Vector3d(-w / 2, h / 2, 0)], [new Vector3d(-30,-10,0),
+                         new Vector3d(30,-10,0),
+                         new Vector3d(30,10,0),
+                         new Vector3d(-30,10,0)
+                         ]);
             }
             else
             {
-                // Create the cylinder
-                BRepPrimAPI_MakeCylinder mkCylinder = new BRepPrimAPI_MakeCylinder(radius, h);
 
-                // Get the resulting TopoDS_Shape
-                TopoDS_Shape myCylinder = mkCylinder.Shape();
-                var shape = new AIS_Shape(myCylinder);
+                MakeRectFace(center + new Vector3d(-w / 2, -h / 2, 0),
+                         center + new Vector3d(w / 2, -h / 2, 0),
+                         center + new Vector3d(w / 2, h / 2, 0),
+                         center + new Vector3d(-w / 2, h / 2, 0));
 
-                myAISContext.Display(shape, true);
-                myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
-                myAISContext.UpdateCurrentViewer();
             }
-            sw.Stop();
-            var ms = sw.ElapsedMilliseconds;
-            toolStripStatusLabel1.Text = $"time: {ms}ms";
-        }
-
-        private void toolStripButton17_Click(object sender, EventArgs e)
-        {
-            // Perform the Boolean Fuse (Union)
-            BRepAlgoAPI_Fuse fuseAlg = new(shapes[0].Shape(), shapes[1].Shape());
-            fuseAlg.Build();
-
-            // Retrieve the resulting shape
-            TopoDS_Shape fusedResult = fuseAlg.Shape();
-            var shape = new AIS_Shape(fusedResult);
-
-            myAISContext.Display(shape, true);
-            myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
-            myAISContext.UpdateCurrentViewer();
-
-        }
-
-        private void toolStripButton18_Click(object sender, EventArgs e)
-        {
-            var d = AutoDialog.DialogHelpers.StartDialog();
-            d.AddDouble("radius", "Radius", 10, 1, 1000);
-            
-            
-
-            if (!d.ShowDialog())
-                return;
-
-            var radius = d.GetDouble("radius");
-            
-            
-            var sw = Stopwatch.StartNew();
-            
-                
-                BRepPrimAPI_MakeSphere mkCylinder = new BRepPrimAPI_MakeSphere(radius);
-
-                // Get the resulting TopoDS_Shape
-                TopoDS_Shape myCylinder = mkCylinder.Shape();
-                var shape = new AIS_Shape(myCylinder);
-
-                myAISContext.Display(shape, true);
-                myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
-                myAISContext.UpdateCurrentViewer();
-            
-            sw.Stop();
-            var ms = sw.ElapsedMilliseconds;
-            toolStripStatusLabel1.Text = $"time: {ms}ms";
         }
     }
 }

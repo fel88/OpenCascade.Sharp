@@ -1,4 +1,5 @@
 ﻿using TKBRep;
+using TKernel;
 using TKG3d;
 using TKMath;
 
@@ -156,7 +157,40 @@ namespace OCCPort
             P.Transform(myTrsf);
         }
 
+        //! Computes   the point,  the  first  and  second
+        //! derivatives on the surface.
+        //! Raised  if   the   continuity   of the current
+        //! intervals is not C2.
+        public override void D2(double U, double V, out gp_Pnt P, out gp_Vec D1U, out gp_Vec D1V, out gp_Vec D2U, out gp_Vec D2V, out gp_Vec D2UV)
+        {
+            mySurf.D2(U, V, out P, out D1U, out D1V, out D2U, out D2V, out D2UV);
+            P.Transform(myTrsf);
+            D1U.Transform(myTrsf);
+            D1V.Transform(myTrsf);
+            D2U.Transform(myTrsf);
+            D2V.Transform(myTrsf);
+            D2UV.Transform(myTrsf);
+        }
 
+        public override int NbVIntervals(GeomAbs_Shape shape)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int NbUIntervals(GeomAbs_Shape shape)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void UIntervals(TColStd_Array1OfReal array, GeomAbs_Shape shape)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void VIntervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

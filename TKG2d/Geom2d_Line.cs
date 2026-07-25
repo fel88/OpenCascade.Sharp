@@ -86,5 +86,14 @@ namespace TKG2d
             ElCLib.LineD1(U, pos, ref P, ref V1);
 
         }
+
+        public override void D2(double U, out gp_Pnt2d P, out gp_Vec2d V1, out gp_Vec2d V2)
+        {
+            V2 = new gp_Vec2d();
+            P = new gp_Pnt2d();
+            V1 = new gp_Vec2d();
+            ElCLib.LineD1(U, pos, ref P, ref V1);
+            V2.SetCoord(0.0, 0.0);
+        }
     }
 }

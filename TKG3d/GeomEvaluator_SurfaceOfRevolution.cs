@@ -58,6 +58,11 @@ namespace TKG3d
             theValue.Transform(aRotation);
         }
 
+        public void D2(double theU, double theV, out gp_Pnt theValue, out gp_Vec theD1U, out gp_Vec theD1V, out gp_Vec theD2U, out gp_Vec theD2V, out gp_Vec theD2UV)
+        {
+            throw new NotImplementedException();
+        }
+
         Geom_Curve myBaseCurve;
         Adaptor3d_Curve myBaseAdaptor;
         gp_Ax1 myRotAxis;

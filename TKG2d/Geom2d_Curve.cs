@@ -33,7 +33,12 @@ namespace TKG2d
         public abstract void D1(double U, out gp_Pnt2d P, out gp_Vec2d V1);
 
 
-       
+        //! Returns the point P of parameter U, the first and second
+        //! derivatives V1 and V2.
+        //! Raised if the continuity of the curve is not C2.
+        public abstract void D2(double U, out gp_Pnt2d P, out gp_Vec2d V1, out gp_Vec2d V2);
+
+
         //! curve becomes the StartPoint of the reversed curve.
         public abstract void Reverse();
         //! Computes the parameter on the reversed curve for

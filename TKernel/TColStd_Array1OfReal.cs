@@ -6,6 +6,8 @@
         {
         }
 
-
+        public TColStd_Array1OfReal(double theBegin, int theLower, int theUpper) : base(theBegin, theLower, theUpper)
+        {
+        }
     }
 }

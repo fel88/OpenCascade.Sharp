@@ -1,4 +1,5 @@
 ﻿using OCCPort.Common;
+using TKernel;
 using TKG2d;
 using TKG3d;
 using TKMath;
@@ -680,6 +681,16 @@ namespace TKGeomBase
         }
 
         public override void D2(double U, out gp_Pnt2d P, out gp_Vec2d V1, out gp_Vec2d V2)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int NbIntervals(GeomAbs_Shape shape)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Intervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
         {
             throw new NotImplementedException();
         }

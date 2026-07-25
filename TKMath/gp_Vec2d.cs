@@ -69,6 +69,10 @@ namespace TKMath
         public gp_Vec2d() { }
         //! Computes the magnitude of this vector.
         public double Magnitude() { return coord.Modulus(); }
+        //! For this vector, assigns
+        //! the values theXv and theYv to its two coordinates
+        public void SetCoord(double theXv, double theYv) { coord.SetCoord(theXv, theYv); }
+
 
         public double Angle(gp_Vec2d Other)
         {

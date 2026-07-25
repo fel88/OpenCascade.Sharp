@@ -10,5 +10,10 @@ namespace TKG3d
         //! Value and first derivatives of surface
         void D1(double theU, double theV,
                       out gp_Pnt theValue, out gp_Vec theD1U, out gp_Vec theD1V);
+
+        //! Value, first and second derivatives of surface
+        void D2( double theU, double theV,
+                      out  gp_Pnt theValue, out gp_Vec theD1U, out gp_Vec theD1V,
+                out gp_Vec theD2U, out gp_Vec theD2V, out gp_Vec theD2UV) ;
     }
 }

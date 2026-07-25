@@ -1,4 +1,6 @@
 ﻿using OCCPort.Common;
+using System.Reflection.Metadata;
+using TKernel;
 using TKMath;
 
 namespace TKG3d
@@ -25,6 +27,68 @@ namespace TKG3d
         }
 
         GeomEvaluator_Surface myNestedEvaluator; ///< Calculates values of nested complex surfaces (offset surface, surface of extrusion or revolution)
+
+
+        //! Returns the  intervals with the requested continuity
+        //! in the U direction.
+        public override void UIntervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
+        {
+            int myNbUIntervals = 1;
+
+            switch (mySurfaceType)
+            {
+                //case GeomAbs_SurfaceType.GeomAbs_BSplineSurface:
+                //    {
+                //        GeomAdaptor_Curve myBasisCurve
+                //          (myBSplineSurface->VIso(myBSplineSurface->VKnot(myBSplineSurface->FirstVKnotIndex())),myUFirst,myULast);
+                //        myNbUIntervals = myBasisCurve.NbIntervals(S);
+                //        myBasisCurve.Intervals(T, S);
+                //        return;
+                //    }
+                //case GeomAbs_SurfaceType.GeomAbs_SurfaceOfExtrusion:
+                //    {
+                //        GeomAdaptor_Curve myBasisCurve
+                //          (Handle(Geom_SurfaceOfLinearExtrusion)::DownCast(mySurface)->BasisCurve(),myUFirst,myULast);
+                //        if (myBasisCurve.GetType() == GeomAbs_BSplineCurve)
+                //        {
+                //            myNbUIntervals = myBasisCurve.NbIntervals(S);
+                //            myBasisCurve.Intervals(T, S);
+                //            return;
+                //        }
+                //        break;
+                //    }
+                case GeomAbs_SurfaceType.GeomAbs_OffsetSurface:
+                    {
+                        GeomAbs_Shape BaseS = GeomAbs_Shape.GeomAbs_CN;
+                        switch (S)
+                        {
+                            case GeomAbs_Shape.GeomAbs_G1:
+                            case GeomAbs_Shape.GeomAbs_G2: throw new Standard_DomainError("GeomAdaptor_Curve::UIntervals");
+                            case GeomAbs_Shape.GeomAbs_C0: BaseS = GeomAbs_Shape.GeomAbs_C1; break;
+                            case GeomAbs_Shape.GeomAbs_C1: BaseS = GeomAbs_Shape.GeomAbs_C2; break;
+                            case GeomAbs_Shape.GeomAbs_C2: BaseS = GeomAbs_Shape.GeomAbs_C3; break;
+                            case GeomAbs_Shape.GeomAbs_C3:
+                            case GeomAbs_Shape.GeomAbs_CN: break;
+                        }
+                        Geom_OffsetSurface myOffSurf = (Geom_OffsetSurface)(mySurface);
+                        GeomAdaptor_Surface Sur = new(myOffSurf.BasisSurface(), myUFirst, myULast, myVFirst, myVLast);
+                        myNbUIntervals = Sur.NbUIntervals(BaseS);
+                        Sur.UIntervals(T, BaseS);
+                        return;
+                    }
+                case GeomAbs_SurfaceType.GeomAbs_Plane:
+                case GeomAbs_SurfaceType.GeomAbs_Cylinder:
+                case GeomAbs_SurfaceType.GeomAbs_Cone:
+                case GeomAbs_SurfaceType.GeomAbs_Sphere:
+                case GeomAbs_SurfaceType.GeomAbs_Torus:
+                case GeomAbs_SurfaceType.GeomAbs_BezierSurface:
+                case GeomAbs_SurfaceType.GeomAbs_OtherSurface:
+                case GeomAbs_SurfaceType.GeomAbs_SurfaceOfRevolution: break;
+            }
+
+            T[(T.Lower())] = myUFirst;
+            T[(T.Lower() + myNbUIntervals)] = myULast;
+        }
 
         public gp_Pnt Value(double U,
                                  double V)
@@ -485,6 +549,158 @@ namespace TKG3d
                     break;
             }
         }
+
+        //! Computes   the point,  the  first  and  second
+        //! derivatives on the surface.
+        //!
+        //! Warning : On the specific case of BSplineSurface:
+        //! if the surface is cut in interval of continuity at least C2,
+        //! the derivatives are computed on the current interval.
+        //! else the derivatives are computed on the basis surface.
+        public override void D2(double U, double V, out gp_Pnt P, out gp_Vec D1U, out gp_Vec D1V, out gp_Vec D2U, out gp_Vec D2V, out gp_Vec D2UV)
+        {
+            int Ideb, Ifin, IVdeb, IVfin, USide = 0, VSide = 0;
+            double u = U, v = V;
+            if (Math.Abs(U - myUFirst) <= myTolU) { USide = 1; u = myUFirst; }
+            else if (Math.Abs(U - myULast) <= myTolU) { USide = -1; u = myULast; }
+            if (Math.Abs(V - myVFirst) <= myTolV) { VSide = 1; v = myVFirst; }
+            else if (Math.Abs(V - myVLast) <= myTolV) { VSide = -1; v = myVLast; }
+
+            switch (mySurfaceType)
+            {
+                //case GeomAbs_BezierSurface:
+                //case GeomAbs_BSplineSurface:
+                //    {
+                //        if (!myBSplineSurface.IsNull() &&
+                //            (USide != 0 || VSide != 0) &&
+                //            IfUVBound(u, v, Ideb, Ifin, IVdeb, IVfin, USide, VSide))
+                //            myBSplineSurface->LocalD2(u, v, Ideb, Ifin, IVdeb, IVfin, P, D1U, D1V, D2U, D2V, D2UV);
+                //        else
+                //        {
+                //            if (mySurfaceCache.IsNull() || !mySurfaceCache->IsCacheValid(U, V))
+                //                RebuildCache(U, V);
+                //            mySurfaceCache->D2(U, V, P, D1U, D1V, D2U, D2V, D2UV);
+                //        }
+                //        break;
+                //    }
+
+                case GeomAbs_SurfaceType.GeomAbs_SurfaceOfExtrusion:
+                case GeomAbs_SurfaceType.GeomAbs_SurfaceOfRevolution:
+                case GeomAbs_SurfaceType.GeomAbs_OffsetSurface:
+                    Exceptions.Standard_NoSuchObject_Raise_if(myNestedEvaluator == null,
+                         "GeomAdaptor_Surface::D2: evaluator is not initialized");
+                    myNestedEvaluator.D2(u, v, out P, out D1U, out D1V, out D2U, out D2V, out D2UV);
+                    break;
+
+                default:
+                    {
+                        mySurface.D2(u, v, out P, out D1U, out D1V, out D2U, out D2V, out D2UV);
+                        break;
+                    }
+            }
+        }
+
+        public override int NbVIntervals(GeomAbs_Shape shape)
+        {
+            switch (mySurfaceType)
+            {
+                //case GeomAbs_BSplineSurface:
+                //    {
+                //        GeomAdaptor_Curve myBasisCurve
+                //          (myBSplineSurface->UIso(myBSplineSurface->UKnot(myBSplineSurface->FirstUKnotIndex())),myVFirst,myVLast);
+                //        return myBasisCurve.NbIntervals(S);
+                //    }
+                //case GeomAbs_SurfaceOfRevolution:
+                //    {
+                //        Handle(Geom_SurfaceOfRevolution) myRevSurf =
+                //            Handle(Geom_SurfaceOfRevolution)::DownCast(mySurface);
+                //        GeomAdaptor_Curve myBasisCurve(myRevSurf->BasisCurve(), myVFirst, myVLast);
+                //        if (myBasisCurve.GetType() == GeomAbs_BSplineCurve)
+                //            return myBasisCurve.NbIntervals(S);
+                //        break;
+                //    }
+                //case GeomAbs_OffsetSurface:
+                //    {
+                //        GeomAbs_Shape BaseS = GeomAbs_CN;
+                //        switch (S)
+                //        {
+                //            case GeomAbs_G1:
+                //            case GeomAbs_G2: throw Standard_DomainError("GeomAdaptor_Curve::NbVIntervals");
+                //            case GeomAbs_C0: BaseS = GeomAbs_C1; break;
+                //            case GeomAbs_C1: BaseS = GeomAbs_C2; break;
+                //            case GeomAbs_C2: BaseS = GeomAbs_C3; break;
+                //            case GeomAbs_C3:
+                //            case GeomAbs_CN: break;
+                //        }
+                //        Handle(Geom_OffsetSurface) myOffSurf = Handle(Geom_OffsetSurface)::DownCast(mySurface);
+                //        GeomAdaptor_Surface Sur(myOffSurf->BasisSurface(), myUFirst, myULast, myVFirst, myVLast);
+                //        return Sur.NbVIntervals(BaseS);
+                //    }
+                case GeomAbs_SurfaceType. GeomAbs_Plane:
+                case GeomAbs_SurfaceType.GeomAbs_Cylinder:
+                case GeomAbs_SurfaceType.GeomAbs_Cone:
+                case GeomAbs_SurfaceType.GeomAbs_Sphere:
+                case GeomAbs_SurfaceType.GeomAbs_Torus:
+                case GeomAbs_SurfaceType.GeomAbs_BezierSurface:
+                case GeomAbs_SurfaceType.GeomAbs_OtherSurface:
+                case GeomAbs_SurfaceType.GeomAbs_SurfaceOfExtrusion: break;
+            }
+            return 1;
+        }
+
+        public override int NbUIntervals(GeomAbs_Shape shape)
+        {
+            switch (mySurfaceType)
+            {
+                //case GeomAbs_SurfaceType. GeomAbs_BSplineSurface:
+                //    {
+                //        GeomAdaptor_Curve myBasisCurve
+                //          (myBSplineSurface->VIso(myBSplineSurface->VKnot(myBSplineSurface->FirstVKnotIndex())),myUFirst,myULast);
+                //        return myBasisCurve.NbIntervals(S);
+                //    }
+                //case GeomAbs_SurfaceOfExtrusion:
+                //    {
+                //        Handle(Geom_SurfaceOfLinearExtrusion) myExtSurf =
+                //            Handle(Geom_SurfaceOfLinearExtrusion)::DownCast(mySurface);
+                //        GeomAdaptor_Curve myBasisCurve(myExtSurf->BasisCurve(), myUFirst, myULast);
+                //        if (myBasisCurve.GetType() == GeomAbs_BSplineCurve)
+                //            return myBasisCurve.NbIntervals(S);
+                //        break;
+                //    }
+                //case GeomAbs_OffsetSurface:
+                //    {
+                //        GeomAbs_Shape BaseS = GeomAbs_CN;
+                //        switch (S)
+                //        {
+                //            case GeomAbs_G1:
+                //            case GeomAbs_G2: throw Standard_DomainError("GeomAdaptor_Curve::NbUIntervals");
+                //            case GeomAbs_C0: BaseS = GeomAbs_C1; break;
+                //            case GeomAbs_C1: BaseS = GeomAbs_C2; break;
+                //            case GeomAbs_C2: BaseS = GeomAbs_C3; break;
+                //            case GeomAbs_C3:
+                //            case GeomAbs_CN: break;
+                //        }
+                //        Handle(Geom_OffsetSurface) myOffSurf = Handle(Geom_OffsetSurface)::DownCast(mySurface);
+                //        GeomAdaptor_Surface Sur(myOffSurf->BasisSurface(), myUFirst, myULast, myVFirst, myVLast);
+                //        return Sur.NbUIntervals(BaseS);
+                //    }
+                case GeomAbs_SurfaceType.GeomAbs_Plane:
+                case GeomAbs_SurfaceType.GeomAbs_Cylinder:
+                case GeomAbs_SurfaceType.GeomAbs_Cone:
+                case GeomAbs_SurfaceType.GeomAbs_Sphere:
+                case GeomAbs_SurfaceType.GeomAbs_Torus:
+                case GeomAbs_SurfaceType.GeomAbs_BezierSurface:
+                case GeomAbs_SurfaceType.GeomAbs_OtherSurface:
+                case GeomAbs_SurfaceType.GeomAbs_SurfaceOfRevolution: break;
+            }
+            return 1;
+        }
+
+        public override void VIntervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
+        {
+            throw new NotImplementedException();
+        }
+
         //BSplSLib_Cache mySurfaceCache; ///< Cached data for B-spline or Bezier surface
 
         public GeomAdaptor_Surface(Geom_Surface theSurf)

@@ -1,4 +1,5 @@
 ﻿using OCCPort.Common;
+using TKernel;
 using TKMath;
 
 namespace TKG3d
@@ -24,6 +25,17 @@ namespace TKG3d
     public abstract class Adaptor3d_Surface
     {
         public abstract double FirstUParameter();
+
+        public abstract int NbVIntervals(GeomAbs_Shape shape);
+        public abstract int NbUIntervals(GeomAbs_Shape shape);
+
+
+
+        //! Returns the  intervals with the requested continuity
+        //! in the V direction.
+        public abstract void VIntervals(TColStd_Array1OfReal T, GeomAbs_Shape S);
+
+
         //=======================================================================
         //function : UDegree
         //purpose  : 
@@ -50,6 +62,8 @@ namespace TKG3d
         //!
         //! Tip: use GeomLib::NormEstim() to calculate surface normal at specified (U, V) point.
         public abstract void D1(double U, double V, out gp_Pnt P, out gp_Vec D1U, out gp_Vec D1V);
+        public abstract void D2(double U, double V, out gp_Pnt P, out gp_Vec D1U, out gp_Vec D1V, out gp_Vec D2U, out gp_Vec D2V, out gp_Vec D2UV);
+
 
         public abstract int NbVKnots();
         //=======================================================================
@@ -60,6 +74,7 @@ namespace TKG3d
         //void Adaptor3d_Surface::D0(const Standard_Real U, const Standard_Real V, gp_Pnt& P) const 
         public abstract void D0(double u, double v, ref gp_Pnt pnt);
 
+        public abstract void UIntervals(TColStd_Array1OfReal array, GeomAbs_Shape shape);
 
 
         public abstract double LastUParameter();
@@ -113,7 +128,7 @@ namespace TKG3d
         {
             throw new Standard_NotImplemented("Adaptor3d_Surface::BSpline");
         }
-        public abstract gp_Pln Plane();        
+        public abstract gp_Pln Plane();
         public abstract gp_Sphere Sphere();
         public abstract gp_Cylinder Cylinder();
         //! Returns the type of the surface : Plane, Cylinder,

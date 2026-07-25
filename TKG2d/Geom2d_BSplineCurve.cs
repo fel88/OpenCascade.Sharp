@@ -104,6 +104,20 @@ namespace TKG2d
         { return knots.Length(); }
 
 
+        //! For a B-spline curve the first parameter (which gives the start
+        //! point of the curve) is a knot value but if the multiplicity of
+        //! the first knot index is lower than Degree + 1 it is not the
+        //! first knot of the curve. This method computes the index of the
+        //! knot corresponding to the first parameter.
+        public int FirstUKnotIndex()
+        {
+            if (periodic) return 1;
+            throw new NotImplementedException();
+            //else return BSplCLib.FirstUKnotIndex(deg, mults.Array1());
+        }
+
+        bool periodic;
+
         TColgp_HArray1OfPnt2d poles;
         TColStd_HArray1OfReal weights;
         TColStd_HArray1OfReal flatknots;
@@ -134,6 +148,22 @@ namespace TKG2d
         public override void D1(double U, out gp_Pnt2d P, out gp_Vec2d V1)
         {
             throw new System.NotImplementedException();
+        }
+
+        public override void D2(double U, out gp_Pnt2d P, out gp_Vec2d V1, out gp_Vec2d V2)
+        {
+            throw new NotImplementedException();
+        }
+
+        //! For a BSpline curve the last parameter (which gives the
+        //! end point of the curve) is a knot value but if the
+        //! multiplicity of the last knot index is lower than
+        //! Degree + 1 it is not the last knot of the curve. This
+        //! method computes the index of the knot corresponding to
+        //! the last parameter.
+        internal int LastUKnotIndex()
+        {
+            throw new NotImplementedException();
         }
     }
 

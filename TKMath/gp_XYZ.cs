@@ -69,14 +69,14 @@ namespace TKMath
         //! @code
         //! theA1 * theXYZ1 + theA2 * theXYZ2 + theXYZ3
         //! @endcode
-        void SetLinearForm(const Standard_Real theA1, const gp_XYZ& theXYZ1,
-                      const Standard_Real theA2, const gp_XYZ& theXYZ2,
-                      const gp_XYZ& theXYZ3)
-  {
-    x = theA1* theXYZ1.x + theA2* theXYZ2.x + theXYZ3.x;
-        y = theA1* theXYZ1.y + theA2* theXYZ2.y + theXYZ3.y;
-        z = theA1* theXYZ1.z + theA2* theXYZ2.z + theXYZ3.z;
-  }
+        public void SetLinearForm(double theA1, gp_XYZ theXYZ1,
+                         double theA2, gp_XYZ theXYZ2,
+                         gp_XYZ theXYZ3)
+        {
+            x = theA1 * theXYZ1.x + theA2 * theXYZ2.x + theXYZ3.x;
+            y = theA1 * theXYZ1.y + theA2 * theXYZ2.y + theXYZ3.y;
+            z = theA1 * theXYZ1.z + theA2 * theXYZ2.z + theXYZ3.z;
+        }
 
 
 

@@ -1,4 +1,5 @@
 ﻿using OCCPort.Common;
+using TKernel;
 using TKMath;
 
 namespace TKG2d
@@ -23,6 +24,15 @@ namespace TKG2d
         public abstract double Resolution(double u);
 
         public abstract double Period();
+
+        public abstract int NbIntervals( GeomAbs_Shape shape ) ;
+
+        //! Stores in <T> the  parameters bounding the intervals
+        //! of continuity <S>.
+        //!
+        //! The array must provide  enough room to  accommodate
+        //! for the parameters. i.e. T.Length() > NbIntervals()
+        public abstract   void Intervals(TColStd_Array1OfReal T,  GeomAbs_Shape S) ;
 
 
         public abstract int Degree();

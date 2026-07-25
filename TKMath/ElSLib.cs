@@ -22,7 +22,78 @@ namespace TKMath
     //! Note: ElSLib stands for Elementary Surfaces Library.
     public class ElSLib
     {
+        public static void SphereD2(double U,
 
+                   double V,
+
+                   gp_Ax3 Pos,
+                   double Radius,
+              out gp_Pnt P,
+              out gp_Vec Vu,
+              out gp_Vec Vv,
+              out gp_Vec Vuu,
+               out gp_Vec Vvv,
+              out gp_Vec Vuv)
+        {
+            // Vxy = CosU * XDirection + SinU * YDirection
+            // DVxy = -SinU * XDirection + CosU * YDirection
+
+            // P(U,V) = Location +  R * CosV * Vxy  +   R * SinV * Direction
+
+            // Vu = R * CosV * DVxy
+
+            // Vuu = - R * CosV * Vxy
+
+            // Vv = -R * SinV * Vxy + R * CosV * Direction
+
+            // Vvv = -R * CosV * Vxy - R * SinV * Direction
+
+            // Vuv = - R * SinV * DVxy
+
+            P = new gp_Pnt();
+            Vu = new gp_Vec();
+            Vvv = new gp_Vec();
+            Vv = new gp_Vec();
+            Vuu = new gp_Vec();
+            Vuv = new gp_Vec();
+
+            gp_XYZ XDir = Pos.XDirection().XYZ();
+            gp_XYZ YDir = Pos.YDirection().XYZ();
+            gp_XYZ ZDir = Pos.Direction().XYZ();
+            gp_XYZ PLoc = Pos.Location().XYZ();
+            double CosU = Math.Cos(U);
+            double SinU = Math.Sin(U);
+            double R1 = Radius * Math.Cos(V);
+            double R2 = Radius * Math.Sin(V);
+            double A1 = R1 * CosU;
+            double A2 = R1 * SinU;
+            double A3 = R2 * CosU;
+            double A4 = R2 * SinU;
+            double Som1X = A1 * XDir.X() + A2 * YDir.X();
+            double Som1Y = A1 * XDir.Y() + A2 * YDir.Y();
+            double Som1Z = A1 * XDir.Z() + A2 * YDir.Z();
+            double R2ZX = R2 * ZDir.X();
+            double R2ZY = R2 * ZDir.Y();
+            double R2ZZ = R2 * ZDir.Z();
+            P.SetX(Som1X + R2ZX + PLoc.X());
+            P.SetY(Som1Y + R2ZY + PLoc.Y());
+            P.SetZ(Som1Z + R2ZZ + PLoc.Z());
+            Vu.SetX(-A2 * XDir.X() + A1 * YDir.X());
+            Vu.SetY(-A2 * XDir.Y() + A1 * YDir.Y());
+            Vu.SetZ(-A2 * XDir.Z() + A1 * YDir.Z());
+            Vv.SetX(-A3 * XDir.X() - A4 * YDir.X() + R1 * ZDir.X());
+            Vv.SetY(-A3 * XDir.Y() - A4 * YDir.Y() + R1 * ZDir.Y());
+            Vv.SetZ(-A3 * XDir.Z() - A4 * YDir.Z() + R1 * ZDir.Z());
+            Vuu.SetX(-Som1X);
+            Vuu.SetY(-Som1Y);
+            Vuu.SetZ(-Som1Z);
+            Vvv.SetX(-Som1X - R2ZX);
+            Vvv.SetY(-Som1Y - R2ZY);
+            Vvv.SetZ(-Som1Z - R2ZZ);
+            Vuv.SetX(A4 * XDir.X() - A3 * YDir.X());
+            Vuv.SetY(A4 * XDir.Y() - A3 * YDir.Y());
+            Vuv.SetZ(A4 * XDir.Z() - A3 * YDir.Z());
+        }
         public static gp_Pnt Value(double U, double V, gp_Pln Pl)
         {
             return ElSLib.PlaneValue(U, V, Pl.Position());

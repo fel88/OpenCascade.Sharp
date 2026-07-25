@@ -154,5 +154,15 @@ namespace TKGeomBase
         {
             throw new NotImplementedException();
         }
+
+        public override int NbIntervals(GeomAbs_Shape shape)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Intervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

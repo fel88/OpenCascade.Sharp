@@ -42,21 +42,21 @@
             toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             toolStripButton5 = new System.Windows.Forms.ToolStripButton();
             toolStripButton6 = new System.Windows.Forms.ToolStripButton();
-            toolStripButton7 = new System.Windows.Forms.ToolStripButton();
-            toolStripButton8 = new System.Windows.Forms.ToolStripButton();
             toolStripButton9 = new System.Windows.Forms.ToolStripButton();
             toolStripButton10 = new System.Windows.Forms.ToolStripButton();
             toolStripButton11 = new System.Windows.Forms.ToolStripButton();
-            toolStripButton12 = new System.Windows.Forms.ToolStripButton();
-            toolStripButton13 = new System.Windows.Forms.ToolStripButton();
             toolStripButton15 = new System.Windows.Forms.ToolStripButton();
-            toolStripButton16 = new System.Windows.Forms.ToolStripButton();
             toolStripButton17 = new System.Windows.Forms.ToolStripButton();
             statusStrip1 = new System.Windows.Forms.StatusStrip();
             toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             toolStrip2 = new System.Windows.Forms.ToolStrip();
             toolStripButton18 = new System.Windows.Forms.ToolStripButton();
+            toolStripButton19 = new System.Windows.Forms.ToolStripButton();
+            toolStripButton7 = new System.Windows.Forms.ToolStripButton();
+            toolStripButton20 = new System.Windows.Forms.ToolStripButton();
+            toolStripButton8 = new System.Windows.Forms.ToolStripButton();
+            toolStripButton13 = new System.Windows.Forms.ToolStripButton();
             toolStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
             toolStripContainer1.TopToolStripPanel.SuspendLayout();
@@ -73,10 +73,10 @@
             // toolStrip1
             // 
             toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
-            toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { toolStripButton1, toolStripDropDownButton1, toolStripButton2, toolStripButton14, toolStripButton3, toolStripButton4, toolStripButton5, toolStripButton6, toolStripButton7, toolStripButton8, toolStripButton9, toolStripButton10, toolStripButton11, toolStripButton12, toolStripButton13, toolStripButton15, toolStripButton16, toolStripButton17 });
+            toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { toolStripButton1, toolStripDropDownButton1, toolStripButton2, toolStripButton14, toolStripButton3, toolStripButton4, toolStripButton5, toolStripButton6, toolStripButton9, toolStripButton10, toolStripButton11, toolStripButton15, toolStripButton17 });
             toolStrip1.Location = new System.Drawing.Point(3, 0);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new System.Drawing.Size(1104, 25);
+            toolStrip1.Size = new System.Drawing.Size(738, 25);
             toolStrip1.TabIndex = 0;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -173,24 +173,6 @@
             toolStripButton6.Text = "clear gravity";
             toolStripButton6.Click += toolStripButton6_Click;
             // 
-            // toolStripButton7
-            // 
-            toolStripButton7.Image = (System.Drawing.Image)resources.GetObject("toolStripButton7.Image");
-            toolStripButton7.ImageTransparentColor = System.Drawing.Color.Magenta;
-            toolStripButton7.Name = "toolStripButton7";
-            toolStripButton7.Size = new System.Drawing.Size(70, 22);
-            toolStripButton7.Text = "add box";
-            toolStripButton7.Click += toolStripButton7_Click;
-            // 
-            // toolStripButton8
-            // 
-            toolStripButton8.Image = (System.Drawing.Image)resources.GetObject("toolStripButton8.Image");
-            toolStripButton8.ImageTransparentColor = System.Drawing.Color.Magenta;
-            toolStripButton8.Name = "toolStripButton8";
-            toolStripButton8.Size = new System.Drawing.Size(114, 22);
-            toolStripButton8.Text = "add box+redraw";
-            toolStripButton8.Click += toolStripButton8_Click;
-            // 
             // toolStripButton9
             // 
             toolStripButton9.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -220,24 +202,6 @@
             toolStripButton11.Text = "iterate poly";
             toolStripButton11.Click += toolStripButton11_Click;
             // 
-            // toolStripButton12
-            // 
-            toolStripButton12.Image = (System.Drawing.Image)resources.GetObject("toolStripButton12.Image");
-            toolStripButton12.ImageTransparentColor = System.Drawing.Color.Magenta;
-            toolStripButton12.Name = "toolStripButton12";
-            toolStripButton12.Size = new System.Drawing.Size(79, 22);
-            toolStripButton12.Text = "add plane";
-            toolStripButton12.Click += toolStripButton12_Click;
-            // 
-            // toolStripButton13
-            // 
-            toolStripButton13.Image = (System.Drawing.Image)resources.GetObject("toolStripButton13.Image");
-            toolStripButton13.ImageTransparentColor = System.Drawing.Color.Magenta;
-            toolStripButton13.Name = "toolStripButton13";
-            toolStripButton13.Size = new System.Drawing.Size(69, 22);
-            toolStripButton13.Text = "add star";
-            toolStripButton13.Click += toolStripButton13_Click;
-            // 
             // toolStripButton15
             // 
             toolStripButton15.Image = Properties.Resources.cross;
@@ -246,15 +210,6 @@
             toolStripButton15.Size = new System.Drawing.Size(52, 22);
             toolStripButton15.Text = "clear";
             toolStripButton15.Click += toolStripButton15_Click;
-            // 
-            // toolStripButton16
-            // 
-            toolStripButton16.Image = (System.Drawing.Image)resources.GetObject("toolStripButton16.Image");
-            toolStripButton16.ImageTransparentColor = System.Drawing.Color.Magenta;
-            toolStripButton16.Name = "toolStripButton16";
-            toolStripButton16.Size = new System.Drawing.Size(65, 22);
-            toolStripButton16.Text = "add cyl";
-            toolStripButton16.Click += toolStripButton16_Click;
             // 
             // toolStripButton17
             // 
@@ -301,10 +256,10 @@
             // toolStrip2
             // 
             toolStrip2.Dock = System.Windows.Forms.DockStyle.None;
-            toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { toolStripButton18 });
+            toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { toolStripButton18, toolStripButton19, toolStripButton7, toolStripButton20, toolStripButton8, toolStripButton13 });
             toolStrip2.Location = new System.Drawing.Point(3, 25);
             toolStrip2.Name = "toolStrip2";
-            toolStrip2.Size = new System.Drawing.Size(128, 25);
+            toolStrip2.Size = new System.Drawing.Size(485, 25);
             toolStrip2.TabIndex = 1;
             // 
             // toolStripButton18
@@ -315,6 +270,51 @@
             toolStripButton18.Size = new System.Drawing.Size(85, 22);
             toolStripButton18.Text = "add sphere";
             toolStripButton18.Click += toolStripButton18_Click;
+            // 
+            // toolStripButton19
+            // 
+            toolStripButton19.Image = (System.Drawing.Image)resources.GetObject("toolStripButton19.Image");
+            toolStripButton19.ImageTransparentColor = System.Drawing.Color.Magenta;
+            toolStripButton19.Name = "toolStripButton19";
+            toolStripButton19.Size = new System.Drawing.Size(70, 22);
+            toolStripButton19.Text = "add box";
+            toolStripButton19.Click += toolStripButton19_Click;
+            // 
+            // toolStripButton7
+            // 
+            toolStripButton7.Image = (System.Drawing.Image)resources.GetObject("toolStripButton7.Image");
+            toolStripButton7.ImageTransparentColor = System.Drawing.Color.Magenta;
+            toolStripButton7.Name = "toolStripButton7";
+            toolStripButton7.Size = new System.Drawing.Size(92, 22);
+            toolStripButton7.Text = "add cylinder";
+            toolStripButton7.Click += toolStripButton7_Click_1;
+            // 
+            // toolStripButton20
+            // 
+            toolStripButton20.Image = (System.Drawing.Image)resources.GetObject("toolStripButton20.Image");
+            toolStripButton20.ImageTransparentColor = System.Drawing.Color.Magenta;
+            toolStripButton20.Name = "toolStripButton20";
+            toolStripButton20.Size = new System.Drawing.Size(78, 22);
+            toolStripButton20.Text = "add circle";
+            toolStripButton20.Click += toolStripButton20_Click;
+            // 
+            // toolStripButton8
+            // 
+            toolStripButton8.Image = (System.Drawing.Image)resources.GetObject("toolStripButton8.Image");
+            toolStripButton8.ImageTransparentColor = System.Drawing.Color.Magenta;
+            toolStripButton8.Name = "toolStripButton8";
+            toolStripButton8.Size = new System.Drawing.Size(69, 22);
+            toolStripButton8.Text = "add star";
+            toolStripButton8.Click += toolStripButton8_Click_1;
+            // 
+            // toolStripButton13
+            // 
+            toolStripButton13.Image = (System.Drawing.Image)resources.GetObject("toolStripButton13.Image");
+            toolStripButton13.ImageTransparentColor = System.Drawing.Color.Magenta;
+            toolStripButton13.Name = "toolStripButton13";
+            toolStripButton13.Size = new System.Drawing.Size(79, 22);
+            toolStripButton13.Text = "add plane";
+            toolStripButton13.Click += toolStripButton13_Click_1;
             // 
             // Form1
             // 
@@ -356,22 +356,22 @@
 		private System.Windows.Forms.ToolStripButton toolStripButton4;
 		private System.Windows.Forms.ToolStripButton toolStripButton5;
 		private System.Windows.Forms.ToolStripButton toolStripButton6;
-		private System.Windows.Forms.ToolStripButton toolStripButton7;
-		private System.Windows.Forms.ToolStripButton toolStripButton8;
         private System.Windows.Forms.ToolStripButton toolStripButton9;
         private System.Windows.Forms.ToolStripButton toolStripButton10;
         private System.Windows.Forms.ToolStripButton toolStripButton11;
-        private System.Windows.Forms.ToolStripButton toolStripButton12;
-        private System.Windows.Forms.ToolStripButton toolStripButton13;
         private System.Windows.Forms.ToolStripButton toolStripButton14;
         private System.Windows.Forms.ToolStripButton toolStripButton15;
-        private System.Windows.Forms.ToolStripButton toolStripButton16;
         private System.Windows.Forms.ToolStripButton toolStripButton17;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripContainer toolStripContainer1;
         private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.ToolStripButton toolStripButton18;
+        private System.Windows.Forms.ToolStripButton toolStripButton19;
+        private System.Windows.Forms.ToolStripButton toolStripButton7;
+        private System.Windows.Forms.ToolStripButton toolStripButton20;
+        private System.Windows.Forms.ToolStripButton toolStripButton8;
+        private System.Windows.Forms.ToolStripButton toolStripButton13;
     }
 }
 
