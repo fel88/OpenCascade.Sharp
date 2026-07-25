@@ -241,8 +241,8 @@ namespace TKMath
         //! 1,2 or 3 directions.
         public void Add(gp_Dir D)
         {
-            double DX = 0, DY = 0, DZ = 0;
-            D.Coord(ref DX, ref DY, ref DZ);
+            double DX, DY, DZ;
+            D.Coord(out DX, out DY, out DZ);
 
             if (DX < -Standard_Real.RealEpsilon())
                 OpenXmin();
@@ -343,8 +343,8 @@ namespace TKMath
         public bool IsWhole() { return (Flags & MaskFlags.WholeMask) == MaskFlags.WholeMask; }
         public void Add(gp_Pnt P)
         {
-            double X = 0, Y = 0, Z = 0;
-            P.Coord(ref X, ref Y, ref Z);
+            double X, Y, Z;
+            P.Coord(out X, out Y, out Z);
             Update(X, Y, Z);
         }
 

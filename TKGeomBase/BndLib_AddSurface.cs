@@ -157,13 +157,13 @@ namespace TKGeomBase
                     break;
                 case GeomAbs_SurfaceType.GeomAbs_Sphere:
                     {
-                        /*if (Abs(UMin) < Precision.Angular() &&
-							Abs(UMax - 2.0 * Math.PI) < Precision.Angular() &&
-							Abs(VMin + Math.PI / 2.0) < Precision.Angular() &&
-							Abs(VMax - Math.PI / 2.0) < Precision.Angular()) // a whole sphere
+                        if (Math.Abs(UMin) < Precision.Angular() &&
+                            Math.Abs(UMax - 2.0 * Math.PI) < Precision.Angular() &&
+                            Math.Abs(VMin + Math.PI / 2.0) < Precision.Angular() &&
+                            Math.Abs(VMax - Math.PI / 2.0) < Precision.Angular()) // a whole sphere
 							BndLib.Add(S.Sphere(), Tol, B);
 						else
-							BndLib.Add(S.Sphere(), UMin, UMax, VMin, VMax, Tol, B);*/
+							BndLib.Add(S.Sphere(), UMin, UMax, VMin, VMax, Tol, B);
 
                     }
                     break;

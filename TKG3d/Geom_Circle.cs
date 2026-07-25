@@ -1,5 +1,6 @@
 ﻿using OCCPort.Common;
 using System.Runtime.Intrinsics.X86;
+using System.Security.Cryptography;
 using TKMath;
 
 namespace TKG3d
@@ -42,6 +43,12 @@ namespace TKG3d
         }
 
         public gp_Circ Circ() { return new gp_Circ(pos, radius); }
+
+        public override void Transform(gp_Trsf T)
+        {
+            radius = radius * Math.Abs(T.ScaleFactor());
+            pos.Transform(T);
+        }
 
         public Geom_Circle(gp_Ax2 A2, double R)
         {

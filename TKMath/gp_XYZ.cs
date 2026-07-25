@@ -1,4 +1,5 @@
 ﻿using OCCPort.Common;
+using System.Threading;
 
 namespace TKMath
 {
@@ -14,6 +15,14 @@ namespace TKMath
         public static implicit operator gp_Pnt(gp_XYZ f)
         {
             return new gp_Pnt(f);
+        }
+
+        public double CrossMagnitude(gp_XYZ theRight)
+        {
+            double aXresult = y * theRight.z - z * theRight.y;
+            double aYresult = z * theRight.x - x * theRight.z;
+            double aZresult = x * theRight.y - y * theRight.x;
+            return Math.Sqrt(aXresult * aXresult + aYresult * aYresult + aZresult * aZresult);
         }
 
         public double CrossSquareMagnitude(gp_XYZ theRight)
@@ -58,15 +67,43 @@ namespace TKMath
 
         //! <me> is set to the following linear form :
         //! @code
+        //! theA1 * theXYZ1 + theA2 * theXYZ2 + theXYZ3
+        //! @endcode
+        void SetLinearForm(const Standard_Real theA1, const gp_XYZ& theXYZ1,
+                      const Standard_Real theA2, const gp_XYZ& theXYZ2,
+                      const gp_XYZ& theXYZ3)
+  {
+    x = theA1* theXYZ1.x + theA2* theXYZ2.x + theXYZ3.x;
+        y = theA1* theXYZ1.y + theA2* theXYZ2.y + theXYZ3.y;
+        z = theA1* theXYZ1.z + theA2* theXYZ2.z + theXYZ3.z;
+  }
+
+
+
+        //! <me> is set to the following linear form :
+        //! @code
+        //! theA1 * theXYZ1 + theA2 * theXYZ2 + theA3 * theXYZ3
+        //! @endcode
+        public void SetLinearForm(double theA1, gp_XYZ theXYZ1,
+                          double theA2, gp_XYZ theXYZ2,
+                          double theA3, gp_XYZ theXYZ3)
+        {
+            x = theA1 * theXYZ1.x + theA2 * theXYZ2.x + theA3 * theXYZ3.x;
+            y = theA1 * theXYZ1.y + theA2 * theXYZ2.y + theA3 * theXYZ3.y;
+            z = theA1 * theXYZ1.z + theA2 * theXYZ2.z + theA3 * theXYZ3.z;
+        }
+
+        //! <me> is set to the following linear form :
+        //! @code
         //! theA1 * theXYZ1 + theXYZ2
         //! @endcode
-       public  void SetLinearForm( double theA1,  gp_XYZ theXYZ1,
-                       gp_XYZ theXYZ2)
-  {
-    x = theA1* theXYZ1.x + theXYZ2.x;
-        y = theA1* theXYZ1.y + theXYZ2.y;
-        z = theA1* theXYZ1.z + theXYZ2.z;
-  }
+        public void SetLinearForm(double theA1, gp_XYZ theXYZ1,
+                        gp_XYZ theXYZ2)
+        {
+            x = theA1 * theXYZ1.x + theXYZ2.x;
+            y = theA1 * theXYZ1.y + theXYZ2.y;
+            z = theA1 * theXYZ1.z + theXYZ2.z;
+        }
 
         //! @code
         //! <me>.X() = <me>.X() + theOther.X()
@@ -108,9 +145,8 @@ namespace TKMath
             throw new NotImplementedException();
         }
 
-        public void Coord(ref double theX, ref double theY, ref double theZ)
+        public void Coord(out double theX, out double theY, out double theZ)
         {
-
             theX = x;
             theY = y;
             theZ = z;
@@ -165,6 +201,10 @@ namespace TKMath
         }
 
         public static gp_XYZ operator *(gp_XYZ v, double y)
+        {
+            return v.Multiplied(y);
+        }
+        public static gp_XYZ operator *(double y, gp_XYZ v)
         {
             return v.Multiplied(y);
         }

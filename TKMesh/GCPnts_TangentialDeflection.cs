@@ -226,22 +226,106 @@ namespace TKMesh
             myPoints.Append(P);
         }
 
-        void PerformCurve(dynamic theC)
+        const double Us3 = 0.3333333333333333333333333333;
+
+        void PerformCurve(Adaptor3d_Curve theC)
         {
+            int i, j;
+            gp_XYZ V1, V2;
+            gp_Pnt MiddlePoint, CurrentPoint, LastPoint;
+            double Du, Dusave, MiddleU, L1, L2;
+
+            double U1 = myFirstu;
+            double LTol = Precision.Confusion(); // protection longueur nulle
+            double ATol = 1e-2 * myAngularDeflection;
+            if (ATol > 1e-2)
+            {
+                ATol = 1e-2;
+            }
+            else if (ATol < 1e-7)
+            {
+                ATol = 1e-7;
+            }
+
+            LastPoint = new gp_Pnt();//not origin
+            D0(theC, myLastU, ref LastPoint);
+
+            // Initialization du calcul
+
+            bool NotDone = true;
+            Dusave = (myLastU - myFirstu) * Us3;
+            Du = Dusave;
+            EvaluateDu(theC, U1, out CurrentPoint, Du, NotDone);
+            myParameters.Append(U1);
+            myPoints.Append(CurrentPoint);
+
+            // Used to detect "isLine" current bspline and in Du computation in general handling.
+            int NbInterv = theC.NbIntervals(GeomAbs_Shape.GeomAbs_CN);
+            TColStd_Array1OfReal Intervs = new(1, NbInterv + 1);
+            theC.Intervals(Intervs, GeomAbs_Shape.GeomAbs_CN);
+
+
+            /* more code */
         }
+
+        public static void D2(Adaptor3d_Curve C, double U,
+                              out  gp_Pnt P, out gp_Vec V1, out gp_Vec V2)
+        {
+            C.D2(U, out P, out V1, out V2);
+        }
+
+        static void D2(Adaptor2d_Curve2d C, double U,
+                        gp_Pnt PP, gp_Vec VV1, gp_Vec VV2)
+        {
+            double X, Y;
+            gp_Pnt2d P;
+            gp_Vec2d V1, V2;
+            C.D2(U, out P, out  V1, out  V2);
+            P.Coord(out X, out Y);
+            PP.SetCoord(X, Y, 0.0);
+            V1.Coord(out X, out Y);
+            VV1.SetCoord(X, Y, 0.0);
+            V2.Coord(out X, out Y);
+            VV2.SetCoord(X, Y, 0.0);
+        }
+
+        public  void EvaluateDu(Adaptor3d_Curve theC,
+                                                double theU,
+                                              out  gp_Pnt theP,
+                                               double theDu,
+                                               bool theNotDone)
+        {
+            gp_Vec T, N;
+            D2(theC, theU, out theP, out T, out  N);
+            double Lt = T.Magnitude();
+            double LTol = Precision.Confusion();
+            if (Lt > LTol && N.Magnitude() > LTol)
+            {
+                double Lc = N.CrossMagnitude(T);
+                double Ln = Lc / Lt;
+                if (Ln > LTol)
+                {
+                    theDu = Math.Sqrt(8.0 * Math.Max(myCurvatureDeflection, myMinLen) / Ln);
+                    theNotDone = false;
+                }
+            }
+        }
+        
 
         public static void D0(Adaptor3d_Curve C, double U, ref gp_Pnt P)
         {
             C.D0(U, ref P);
         }
+
         public static void D0(Adaptor2d_Curve2d C, double U, ref gp_Pnt PP)
         {
             double X = 0, Y = 0;
             gp_Pnt2d P = new gp_Pnt2d();
             C.D0(U, ref P);
-            P.Coord(ref X, ref Y);
+            P.Coord(out X, out Y);
             PP.SetCoord(X, Y, 0.0);
         }
+
         public void PerformLinear(Adaptor2d_Curve2d theC)
         {
             gp_Pnt P = new gp_Pnt();

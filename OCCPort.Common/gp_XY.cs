@@ -131,7 +131,7 @@
         public double Crossed(gp_XY theOther) { return x * theOther.y - y * theOther.x; }
 
         //! For this number pair, returns its coordinates X and Y.
-        public void Coord(ref double theX, ref double theY)
+        public void Coord(out double theX, out double theY)
         {
             theX = x;
             theY = y;

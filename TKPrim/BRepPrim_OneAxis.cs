@@ -502,6 +502,10 @@ namespace TKPrim
             return myFaces[FSTART];
         }
 
+        public void SetMeridianOffset(double O)
+        {
+            myMeridianOffset = O;
+        }
 
         TopoDS_Wire StartWire()
         {

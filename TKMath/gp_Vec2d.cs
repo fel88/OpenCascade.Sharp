@@ -1,6 +1,7 @@
 ﻿using OCCPort;
 using OCCPort.Common;
 using System.Security.Cryptography;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TKMath
 {
@@ -18,6 +19,9 @@ namespace TKMath
         public void SetXY(gp_XY theCoord) { coord = theCoord; }
         //! Computes the square magnitude of this vector.
         public double SquareMagnitude() { return coord.SquareModulus(); }
+
+        //! For this vector, returns  its two coordinates theXv and theYv
+        public void Coord(out double theXv, out double theYv) { coord.Coord(out theXv, out theYv); }
 
         //! Creates a vector from two points. The length of the vector
         //! is the distance between theP1 and theP2

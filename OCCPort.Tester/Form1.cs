@@ -67,7 +67,7 @@ namespace OCCPort.Tester
                              new BVH_VecNt(50, 50, 50))
                     }
                 }));*/
-            Controls.Add(glControl);
+            toolStripContainer1.ContentPanel.Controls.Add(glControl);
             glControl.Dock = DockStyle.Fill;
         }
 
@@ -794,6 +794,37 @@ namespace OCCPort.Tester
             myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
             myAISContext.UpdateCurrentViewer();
 
+        }
+
+        private void toolStripButton18_Click(object sender, EventArgs e)
+        {
+            var d = AutoDialog.DialogHelpers.StartDialog();
+            d.AddDouble("radius", "Radius", 10, 1, 1000);
+            
+            
+
+            if (!d.ShowDialog())
+                return;
+
+            var radius = d.GetDouble("radius");
+            
+            
+            var sw = Stopwatch.StartNew();
+            
+                
+                BRepPrimAPI_MakeSphere mkCylinder = new BRepPrimAPI_MakeSphere(radius);
+
+                // Get the resulting TopoDS_Shape
+                TopoDS_Shape myCylinder = mkCylinder.Shape();
+                var shape = new AIS_Shape(myCylinder);
+
+                myAISContext.Display(shape, true);
+                myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
+                myAISContext.UpdateCurrentViewer();
+            
+            sw.Stop();
+            var ms = sw.ElapsedMilliseconds;
+            toolStripStatusLabel1.Text = $"time: {ms}ms";
         }
     }
 }

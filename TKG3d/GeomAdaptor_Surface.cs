@@ -41,6 +41,13 @@ namespace TKG3d
             return ((Geom_CylindricalSurface)(mySurface)).Cylinder();
         }
 
+        public override gp_Sphere Sphere()
+        {
+            if (mySurfaceType != GeomAbs_SurfaceType.GeomAbs_Sphere)
+                throw new Standard_NoSuchObject("GeomAdaptor_Surface::Sphere");
+            return ((Geom_SphericalSurface)mySurface).Sphere();
+        }
+
         public override Adaptor3d_Surface BasisSurface()
         {
             if (mySurfaceType != GeomAbs_SurfaceType.GeomAbs_OffsetSurface)
@@ -150,9 +157,9 @@ namespace TKG3d
                 else if (TheType == typeof(Geom_CylindricalSurface))
                     mySurfaceType = GeomAbs_SurfaceType.GeomAbs_Cylinder;
                 else if (TheType == typeof(Geom_ConicalSurface))
-                    mySurfaceType = GeomAbs_SurfaceType.GeomAbs_Cone;/*
+                    mySurfaceType = GeomAbs_SurfaceType.GeomAbs_Cone;
                 else if (TheType == typeof(Geom_SphericalSurface))
-                    mySurfaceType = GeomAbs_SurfaceType.GeomAbs_Sphere;
+                    mySurfaceType = GeomAbs_SurfaceType.GeomAbs_Sphere;/*
                 else if (TheType == typeof(Geom_ToroidalSurface))
                     mySurfaceType = GeomAbs_SurfaceType.GeomAbs_Torus;*/
                 else if (TheType == typeof(Geom_SurfaceOfRevolution))
@@ -250,14 +257,14 @@ namespace TKG3d
                             Res = R3d / (2.0 * R);
                         break;
                     }
-                //case GeomAbs_Sphere:
-                //    {
-                //        Handle(Geom_SphericalSurface) S(Handle(Geom_SphericalSurface)::DownCast(mySurface));
-                //        const Standard_Real R = S->Radius();
-                //        if (R > Precision::Confusion())
-                //            Res = R3d / (2.* R);
-                //        break;
-                //    }
+                case GeomAbs_SurfaceType.GeomAbs_Sphere:
+                    {
+                        Geom_SphericalSurface S = ((Geom_SphericalSurface)(mySurface));
+                        double R = S.Radius();
+                        if (R > Precision.Confusion())
+                            Res = R3d / (2.0 * R);
+                        break;
+                    }
                 case GeomAbs_SurfaceType.GeomAbs_SurfaceOfExtrusion:
                 case GeomAbs_SurfaceType.GeomAbs_Cylinder:
                 case GeomAbs_SurfaceType.GeomAbs_Cone:

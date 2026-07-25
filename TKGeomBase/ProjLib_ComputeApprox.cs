@@ -294,12 +294,12 @@ namespace TKGeomBase
                     //        ElSLib::Parameters(Cone, P3d, u, v);
                     //        break;
                     //    }
-                    //case GeomAbs_Sphere:
-                    //    {
-                    //        gp_Sphere Sphere = S->Sphere();
-                    //        ElSLib::Parameters(Sphere, P3d, u, v);
-                    //        break;
-                    //    }
+                    case GeomAbs_SurfaceType.GeomAbs_Sphere:
+                        {
+                            gp_Sphere Sphere = S.Sphere();
+                            ElSLib.Parameters(Sphere, P3d, ref u, ref v);
+                            break;
+                        }
                     //case GeomAbs_Torus:
                     //    {
                     //        gp_Torus Torus = S->Torus();

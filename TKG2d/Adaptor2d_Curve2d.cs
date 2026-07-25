@@ -31,6 +31,7 @@ namespace TKG2d
         //! Raised if the continuity of the current interval
         //! is not C1.
         public abstract void D1(double U, out gp_Pnt2d P, out gp_Vec2d V);
+        public abstract void D2(double U, out gp_Pnt2d P, out gp_Vec2d V1, out gp_Vec2d V2);
         public abstract int NbKnots();
 
         public abstract GeomAbs_CurveType _GetType();

@@ -47,6 +47,15 @@
         //! XDirection().Crossed(YDirection()).Dot(Direction()) > 0
         public bool Direct() { return (vxdir.Crossed(vydir).Dot(axis.Direction()) > 0.0); }
 
+        public gp_Ax2 Ax2()
+        {
+            gp_Dir aZz = axis.Direction();
+            if (!Direct())
+            {
+                aZz.Reverse();
+            }
+            return new gp_Ax2(axis.Location(), aZz, vxdir);
+        }
         public void Transform(gp_Trsf theT)
         {
             axis.Transform(theT);

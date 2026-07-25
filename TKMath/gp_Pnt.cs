@@ -54,11 +54,11 @@ namespace TKMath
         {
             return SquareDistance(new gp_Pnt(theOther));
         }
-        //! For this point gives its three coordinates theXp, theYp and theZp.
-        public void Coord(ref double theXp, ref double theYp, ref double theZp)
-        {
 
-            coord.Coord(ref theXp, ref theYp, ref theZp);
+        //! For this point gives its three coordinates theXp, theYp and theZp.
+        public void Coord(out double theXp, out double theYp, out double theZp)
+        {
+            coord.Coord(out theXp, out theYp, out theZp);
         }
 
         //! For this point, assigns  the values theXp, theYp and theZp to its three coordinates.

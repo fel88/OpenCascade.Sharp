@@ -6,6 +6,8 @@ using TKMath;
 
 namespace OCCPort
 {
+    //! Representation  of a  curve   by a   curve  in the
+    //! parametric space of a surface.
     public class BRep_CurveOnSurface : BRep_GCurve
     {
         public BRep_CurveOnSurface(Geom2d_Curve PC,
@@ -18,6 +20,11 @@ namespace OCCPort
             mySurface = S;
 
         }
+        public override Geom_Surface Surface()
+        {
+            return mySurface;
+        }
+
 
         public override bool IsCurveOnSurface(Geom_Surface S,
             TopLoc_Location L)

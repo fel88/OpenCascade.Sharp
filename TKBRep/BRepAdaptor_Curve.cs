@@ -270,6 +270,22 @@ namespace OCCPort
         {
             throw new NotImplementedException();
         }
+
+
+        //! Returns the point P of parameter U, the first and second
+        //! derivatives V1 and V2.
+        //! Raised if the continuity of the current interval
+        //! is not C2.
+        public override void D2(double U, out gp_Pnt P, out gp_Vec V1, out gp_Vec V2)
+        {
+            if (myConSurf == null)
+                myCurve.D2(U, out P, out V1, out V2);
+            else
+                myConSurf.D2(U, out P, out V1, out V2);
+            P.Transform(myTrsf);
+            V1.Transform(myTrsf);
+            V2.Transform(myTrsf);
+        }
     }
 }
 

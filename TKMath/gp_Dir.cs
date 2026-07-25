@@ -80,9 +80,9 @@ namespace TKMath
         }
 
         //! Returns for the  unit vector  its three coordinates theXv, theYv, and theZv.
-        public void Coord(ref double theXv, ref double theYv, ref double theZv)
+        public void Coord(out double theXv, out double theYv, out double theZv)
         {
-            coord.Coord(ref theXv, ref theYv, ref theZv);
+            coord.Coord(out theXv, out theYv, out theZv);
         }
 
 

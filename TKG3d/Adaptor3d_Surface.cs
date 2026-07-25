@@ -113,7 +113,8 @@ namespace TKG3d
         {
             throw new Standard_NotImplemented("Adaptor3d_Surface::BSpline");
         }
-        public abstract gp_Pln Plane();
+        public abstract gp_Pln Plane();        
+        public abstract gp_Sphere Sphere();
         public abstract gp_Cylinder Cylinder();
         //! Returns the type of the surface : Plane, Cylinder,
         //! Cone,      Sphere,        Torus,    BezierSurface,

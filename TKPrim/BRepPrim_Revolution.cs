@@ -12,7 +12,7 @@ namespace TKPrim
     public class BRepPrim_Revolution : BRepPrim_OneAxis
 
     {
-        public BRepPrim_Revolution(gp_Ax2 A, int VMin, double VMax) : base(new BRepPrim_Builder(), A, VMin, VMax)
+        public BRepPrim_Revolution(gp_Ax2 A, double VMin, double VMax) : base(new BRepPrim_Builder(), A, VMin, VMax)
         {
         }
 

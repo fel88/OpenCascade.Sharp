@@ -38,11 +38,25 @@ namespace TKG2d
             pos = C.Axis();
         }
 
+        //! Constructs a circle of radius Radius, whose center is the origin of axis
+        //! A; A is the "X Axis" of the local coordinate system
+        //! of the circle; this coordinate system is direct if
+        //! Sense is true (default value) or indirect if Sense is false.
+        //! Note: It is possible to create a circle where Radius is equal to 0.0.
+        //! Exceptions Standard_ConstructionError if Radius is negative.
+        public Geom2d_Circle(gp_Ax2d A, double Radius, bool Sense = true)
+        {
+            radius = (Radius);
+            if (Radius < 0.0) { throw new Standard_ConstructionError(); }
+            pos = new gp_Ax22d(A, Sense);
+        }
+
+
         //! Returns in P the point of parameter U.
         //! P = C + R * Cos (U) * XDir + R * Sin (U) * YDir
         //! where C is the center of the circle , XDir the XDirection and
         //! YDir the YDirection of the circle's local coordinate system.
-        public override void D0( double U, out gp_Pnt2d P)
+        public override void D0(double U, out gp_Pnt2d P)
         {
             P = ElCLib.CircleValue(U, pos, radius);
         }

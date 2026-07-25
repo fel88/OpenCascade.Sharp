@@ -56,6 +56,30 @@ namespace TKMath
             SetXDirection(D);
         }
 
+        public void SetDirection(gp_Dir theV)
+        {
+            double a = theV * vxdir;
+            if (Math.Abs(Math.Abs(a) - 1.0) <= Precision.Angular())
+            {
+                if (a > 0.0)
+                {
+                    vxdir = vydir;
+                    vydir = axis.Direction();
+                    axis.SetDirection(theV);
+                }
+                else
+                {
+                    vxdir = axis.Direction();
+                    axis.SetDirection(theV);
+                }
+            }
+            else
+            {
+                axis.SetDirection(theV);
+                vxdir = theV.CrossCrossed(vxdir, theV);
+                vydir = theV.Crossed(vxdir);
+            }
+        }
 
         //! Changes the "Xdirection" of <me>. The main direction
         //! "Direction" is not modified, the "Ydirection" is modified.

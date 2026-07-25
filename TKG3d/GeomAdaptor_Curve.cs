@@ -748,5 +748,10 @@ namespace TKG3d
         {
             throw new NotImplementedException();
         }
+
+        public override void D2(double d, out gp_Pnt p, out gp_Vec v1, out gp_Vec v2)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -415,5 +415,61 @@ namespace TKG3d
         {
             throw new NotImplementedException();
         }
+
+        //! Returns the point P of parameter U, the first and second
+        //! derivatives V1 and V2.
+        //! Raised if the continuity of the current interval
+        //! is not C2.
+        public override void D2(double U, out gp_Pnt P, out gp_Vec V1, out gp_Vec V2)
+        {
+            gp_Pnt2d UV;
+            gp_Vec2d DW, D2W;
+            gp_Vec D1U, D1V, D2U, D2V, D2UV;
+
+            P = new gp_Pnt();
+            V1 = new gp_Vec();
+            V2 = new gp_Vec();
+
+
+            double FP = myCurve.FirstParameter();
+            double LP = myCurve.LastParameter();
+
+            double Tol = Precision.PConfusion() / 10;
+            if ((Math.Abs(U - FP) < Tol) && (myFirstSurf != null))
+            {
+                myCurve.D2(U, UV, DW, D2W);
+                myFirstSurf.D2(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV);
+
+                V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
+                V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2.0 * DW.X() * DW.Y(), D2UV);
+                V2.SetLinearForm(DW.X() * DW.X(), D2U, DW.Y() * DW.Y(), D2V, V2);
+            }
+            else
+              if ((Math.Abs(U - LP) < Tol) && (myLastSurf != null))
+            {
+                myCurve.D2(U, out UV, out DW, out outD2W);
+                myLastSurf.D2(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV);
+
+                V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
+                V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2.0 * DW.X() * DW.Y(), D2UV);
+                V2.SetLinearForm(DW.X() * DW.X(), D2U, DW.Y() * DW.Y(), D2V, V2);
+            }
+            else
+                if (myType == GeomAbs_CurveType.GeomAbs_Line)
+            {
+                ElCLib.D1(U, out myLin, out P, out V1);
+                V2.SetCoord(0.0, 0.0, 0.0);
+            }
+            else if (myType == GeomAbs_CurveType.GeomAbs_Circle) ElCLib.D2(U, myCirc, P, V1, V2);
+            else
+            {
+                myCurve.D2(U, out UV, out DW, out D2W);
+                mySurface.D2(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV);
+
+                V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
+                V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2.0 * DW.X() * DW.Y(), D2UV);
+                V2.SetLinearForm(DW.X() * DW.X(), D2U, DW.Y() * DW.Y(), D2V, V2);
+            }
+        }
     }
 }

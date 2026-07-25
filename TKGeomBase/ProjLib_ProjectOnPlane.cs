@@ -1,5 +1,6 @@
 ﻿global using TColStd_Array1OfInteger = TKernel.NCollection_Array1<int>;
 using OCCPort.Common;
+using System.Reflection.Metadata;
 using TKernel;
 using TKG3d;
 using TKMath;
@@ -299,7 +300,7 @@ namespace TKGeomBase
                                         //aTrsfInPlane.SetValues(anEigenVec[1, 2], anEigenVec[1, 1], 0.0,
                                         //  anEigenVec[2, 2], anEigenVec[2, 1], 0.0);
                                         gp_Trsf aRot = new gp_Trsf();
-                                      //  aRot.SetRotation(new gp_Ax1(P, myPlane.Direction()), aTrsfInPlane.RotationPart());
+                                        //  aRot.SetRotation(new gp_Ax1(P, myPlane.Direction()), aTrsfInPlane.RotationPart());
 
                                         Dx = myPlane.XDirection().Transformed(aRot);
                                         Dy = myPlane.YDirection().Transformed(aRot);
@@ -482,12 +483,80 @@ namespace TKGeomBase
                 //return false;
                 return 0;
             else
-                        return myCurve.Period();
+                return myCurve.Period();
         }
 
         public override void D1(double d, out gp_Pnt p, out gp_Vec v)
         {
             throw new NotImplementedException();
+        }
+
+        //! Returns the point P of parameter U, the first and second
+        //! derivatives V1 and V2.
+        //! Raised if the continuity of the current interval
+        //! is not C2.
+        public override void D2(double U, out gp_Pnt P, out gp_Vec V1, out gp_Vec V2)
+        {
+            if (myType != GeomAbs_CurveType.GeomAbs_OtherCurve)
+            {
+                myResult.D2(U, out P, out V1, out V2);
+            }
+            else
+            {
+                OnPlane_D2(U,
+                 out P,
+                  out V1,
+                out V2,
+                  myCurve,
+                  myPlane,
+                  myDirection);
+            }
+        }
+
+        static bool OnPlane_D2(double U,
+          out gp_Pnt P,
+ out gp_Vec V1,
+ out gp_Vec V2,
+   Adaptor3d_Curve aCurvePtr,
+   gp_Ax3 Pl,
+   gp_Dir D)
+        {
+            double Alpha;
+            gp_Pnt Point;
+            gp_Vec Vector1,
+              Vector2;
+
+            P = new gp_Pnt();
+            V1 = new gp_Vec();
+            V2 = new gp_Vec();
+
+            gp_Dir Z = Pl.Direction();
+
+            aCurvePtr.D2(U, out Point, out Vector1, out Vector2);
+
+            // evaluate the point as in `OnPlane_Value`
+            gp_Vec PO = new(Point, Pl.Location());
+            Alpha = PO * new gp_Vec(Z);
+            Alpha /= D * Z;
+            P.SetXYZ(Point.XYZ() + Alpha * D.XYZ());
+
+            // evaluate the derivative.
+            // 
+            //   d(Proj)  d(P)       1        d(P)
+            //   ------ = ---  - -------- * ( --- . Z ) * D
+            //     dU     dU     ( D . Z)     dU  
+            //
+
+            Alpha = Vector1 * new gp_Vec(Z);
+            Alpha /= D * Z;
+
+            V1.SetXYZ(Vector1.XYZ() - Alpha * D.XYZ());
+
+            Alpha = Vector2 * new gp_Vec(Z);
+            Alpha /= D * Z;
+
+            V2.SetXYZ(Vector2.XYZ() - Alpha * D.XYZ());
+            return true;
         }
 
         Adaptor3d_Curve myCurve;

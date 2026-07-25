@@ -23,6 +23,12 @@ namespace OCCPort
             return mySurf;
         }
 
+        public override gp_Sphere Sphere()
+        {
+            return mySurf.Sphere().Transformed(myTrsf);
+        }
+
+
         public override gp_Cylinder Cylinder()
         {
             return mySurf.Cylinder().Transformed(myTrsf);

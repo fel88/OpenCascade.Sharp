@@ -13,8 +13,13 @@ namespace TKMath
             return aV;
         }
 
+        //! Computes the magnitude of the cross
+        //! product between <me> and theRight.
+        //! Returns || <me> ^ theRight ||
+        public double CrossMagnitude(gp_Vec theRight) { return coord.CrossMagnitude(theRight.coord); }
+
         //! Assigns the three coordinates of theCoord to this vector.
-       public  void SetXYZ( gp_XYZ theCoord) { coord = theCoord; }
+        public void SetXYZ(gp_XYZ theCoord) { coord = theCoord; }
 
         public void Transform(gp_Trsf T)
         {
@@ -55,6 +60,23 @@ namespace TKMath
                        double theA2, gp_Vec theV2)
         {
             coord.SetLinearForm(theA1, theV1.coord, theA2, theV2.coord);
+        }
+
+        //! <me> is set to the following linear form :
+        //! theA1 * theV1 + theA2 * theV2 + theA3 * theV3
+        public void SetLinearForm(double theA1, gp_Vec theV1,
+                        double theA2, gp_Vec theV2,
+                        double theA3, gp_Vec theV3)
+        {
+            coord.SetLinearForm(theA1, theV1.coord, theA2, theV2.coord, theA3, theV3.coord);
+        }
+
+        //! <me> is set to the following linear form :
+        //! theA1 * theV1 + theA2 * theV2 + theV3
+        public void SetLinearForm(double theA1, gp_Vec theV1,
+                           double theA2, gp_Vec theV2, gp_Vec theV3)
+        {
+            coord.SetLinearForm(theA1, theV1.coord, theA2, theV2.coord, theV3.coord);
         }
 
         //! computes the cross product between two vectors
