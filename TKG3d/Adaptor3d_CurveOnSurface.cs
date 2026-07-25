@@ -492,7 +492,12 @@ namespace TKG3d
 
         public override void Intervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
         {
-            throw new NotImplementedException();
+            NbIntervals(S);
+            Exceptions.Standard_ASSERT_RAISE(T.Length() == myIntervals.Length(), "Error: Wrong size of array buffer in call to Adaptor3d_CurveOnSurface::Intervals");
+            for (int i = 1; i <= myIntervals.Length(); i++)
+            {
+                T[(i)]= myIntervals.Value(i);
+            }
         }
 
         public override gp_Circ Circle()

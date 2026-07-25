@@ -19,6 +19,7 @@ namespace TKG3d
     //! thread-safe and parallel evaluations need to be prevented.
     public abstract class Adaptor3d_Curve : ITheCurve
     {
+        
 
         //! Returns  the number  of  intervals for  continuity
         //! <S>. May be one if Continuity(me) >= <S>

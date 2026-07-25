@@ -1213,7 +1213,7 @@ namespace TKGeomBase
 
 };
 
-        
+
         public static void VBernstein(int classe,
 
           int nbpoints,

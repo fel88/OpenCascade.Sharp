@@ -1,10 +1,12 @@
 ﻿global using TColgp_SequenceOfPnt = TKernel.NCollection_Sequence<TKMath.gp_Pnt>;
 
 using OCCPort.Common;
+using System;
 using System.Linq;
 using TKernel;
 using TKG2d;
 using TKG3d;
+using TKGeomBase;
 using TKMath;
 
 namespace TKMesh
@@ -228,11 +230,11 @@ namespace TKMesh
 
         const double Us3 = 0.3333333333333333333333333333;
 
-        void PerformCurve(Adaptor3d_Curve theC)
+        void PerformCurve(ITheCurve theC)
         {
             int i, j;
             gp_XYZ V1, V2;
-            gp_Pnt MiddlePoint, CurrentPoint, LastPoint;
+            gp_Pnt MiddlePoint = new gp_Pnt(), CurrentPoint, LastPoint;
             double Du, Dusave, MiddleU, L1, L2;
 
             double U1 = myFirstu;
@@ -264,12 +266,384 @@ namespace TKMesh
             TColStd_Array1OfReal Intervs = new(1, NbInterv + 1);
             theC.Intervals(Intervs, GeomAbs_Shape.GeomAbs_CN);
 
+            if (NotDone || Du > 5.0 * Dusave)
+            {
+                //C'est soit une droite, soit une singularite :
+                V1 = (LastPoint.XYZ() - CurrentPoint.XYZ());
+                L1 = V1.Modulus();
+                if (L1 > LTol)
+                {
+                    // Si c'est une droite on verifie en calculant minNbPoints :
+                    bool IsLine = true;
+                    int NbPoints = (myMinNbPnts > 3) ? myMinNbPnts : 3;
+                    switch (theC.GetType())
+                    {
+                        //case GeomAbs_BSplineCurve:
+                        //    {
+                        //        Handle(typename GCPnts_TCurveTypes < TheCurve >::BSplineCurve) BS = theC.BSpline();
+                        //        NbPoints = Max(BS->Degree() + 1, NbPoints);
+                        //        break;
+                        //    }
+                        //case GeomAbs_BezierCurve:
+                        //    {
+                        //        Handle(typename GCPnts_TCurveTypes < TheCurve >::BezierCurve) BZ = theC.Bezier();
+                        //        NbPoints = Max(BZ->Degree() + 1, NbPoints);
+                        //        break;
+                        //    }
+                        default:
+                            {
+                                break;
+                            }
+                    }
+                    ////
+                    double param = 0.0;
+                    for (i = 1; i <= NbInterv && IsLine; ++i)
+                    {
+                        // Avoid usage intervals out of [myFirstu, myLastU].
+                        if ((Intervs[(i + 1)] < myFirstu)
+                         || (Intervs[(i)] > myLastU))
+                        {
+                            continue;
+                        }
 
-            /* more code */
+                        // Fix border points in applicable intervals, to avoid be out of target interval.
+                        if ((Intervs[(i)] < myFirstu)
+                         && (Intervs[(i + 1)] > myFirstu))
+                        {
+                            Intervs[(i)] = myFirstu;
+                        }
+                        if ((Intervs[(i)] < myLastU)
+                         && (Intervs[(i + 1)] > myLastU))
+                        {
+                            Intervs[(i + 1)] = myLastU;
+                        }
+
+                        double delta = (Intervs[(i + 1)] - Intervs[(i)]) / NbPoints;
+                        for (j = 1; j <= NbPoints && IsLine; ++j)
+                        {
+                            param = Intervs[(i)] + j * delta;
+                            D0(theC, param, ref MiddlePoint);
+                            V2 = (MiddlePoint.XYZ() - CurrentPoint.XYZ());
+                            L2 = V2.Modulus();
+                            if (L2 > LTol)
+                            {
+                                double aAngle = V2.CrossMagnitude(V1) / (L1 * L2);
+                                IsLine = (aAngle < ATol);
+                            }
+                        }
+                    }
+
+                    if (IsLine)
+                    {
+                        myParameters.Clear();
+                        myPoints.Clear();
+
+                        PerformLinear(theC);
+                        return;
+                    }
+                    else
+                    {
+                        // c'etait une singularite on continue:
+                        //Du = Dusave;
+                        EvaluateDu(theC, param, out MiddlePoint, Du, NotDone);
+                    }
+                }
+                else
+                {
+                    Du = (myLastU - myFirstu) / 2.1;
+                    MiddleU = myFirstu + Du;
+                    D0(theC, MiddleU, ref MiddlePoint);
+                    V1 = (MiddlePoint.XYZ() - CurrentPoint.XYZ());
+                    L1 = V1.Modulus();
+                    if (L1 < LTol)
+                    {
+                        // L1 < LTol C'est une courbe de longueur nulle, calcul termine :
+                        // on renvoi un segment de 2 points   (protection)
+                        myParameters.Append(myLastU);
+                        myPoints.Append(LastPoint);
+                        return;
+                    }
+                }
+            }
+
+            if (Du > Dusave) Du = Dusave;
+            else Dusave = Du;
+
+            if (Du < myUTol)
+            {
+                Du = myLastU - myFirstu;
+                if (Du < myUTol)
+                {
+                    myParameters.Append(myLastU);
+                    myPoints.Append(LastPoint);
+                    return;
+                }
+            }
+
+            // Traitement normal pour une courbe
+            bool MorePoints = true;
+            double U2 = myFirstu;
+            double AngleMax = myAngularDeflection * 0.5;  // car on prend le point milieu
+                                                          // Indexes of intervals of U1 and U2, used to handle non-uniform case.
+            int[] aIdx = { Intervs.Lower(), Intervs.Lower() };
+            bool isNeedToCheck = false;
+            gp_Pnt aPrevPoint = myPoints.Last();
+            while (MorePoints)
+            {
+                aIdx[0] = getIntervalIdx(U1, Intervs, aIdx[0]);
+                U2 += Du;
+
+                if (U2 >= myLastU)                       // Bout de courbe
+                {
+                    U2 = myLastU;
+                    CurrentPoint = LastPoint;
+                    Du = U2 - U1;
+                    Dusave = Du;
+                }
+                else
+                {
+                    D0(theC, U2, ref CurrentPoint);           // Point suivant
+                }
+
+                double Coef = 0.0, ACoef = 0.0, FCoef = 0.0;
+                bool Correction, TooLarge, TooSmall;
+                TooLarge = false;
+                Correction = true;
+                TooSmall = false;
+                while (Correction)                       // Ajustement Du
+                {
+                    if (isNeedToCheck)
+                    {
+                    }
+                }
+                Du = U2 - U1;
+                if (MorePoints)
+                {
+                }
+                /* more code */
+
+            }
+
+            // Recalage avant dernier point :
+            i = myPoints.Length() - 1;
+            //  Real d = myPoints (i).Distance (myPoints (i+1));
+            // if (Abs(myParameters (i) - myParameters (i+1))<= 0.000001 || d < Precision::Confusion()) {
+            //    cout<<"deux points confondus"<<endl;
+            //    myParameters.Remove (i+1);
+            //    myPoints.Remove (i+1);
+            //    i--;
+            //  }
+            if (i >= 2)
+            {
+                MiddleU = myParameters[(i - 1)];
+                MiddleU = (myLastU + MiddleU) * 0.5;
+                D0(theC, MiddleU, ref MiddlePoint);
+                myParameters.SetValue(i, MiddleU);
+                myPoints.SetValue(i, MiddlePoint);
+            }
+
+            //-- On rajoute des points aux milieux des segments si le nombre
+            //-- mini de points n'est pas atteint
+            //--
+            int Nbp = myPoints.Length();
+
+            //std::cout << "GCPnts_TangentialDeflection: Number of Points (" << Nbp << " " << myMinNbPnts << " )" << std::endl;
+
+            while (Nbp < myMinNbPnts)
+            {
+                for (i = 2; i <= Nbp; i += 2)
+                {
+                    MiddleU = (myParameters.Value(i - 1) + myParameters.Value(i)) * 0.5;
+                    D0(theC, MiddleU, ref MiddlePoint);
+                    myParameters.InsertBefore(i, MiddleU);
+                    myPoints.InsertBefore(i, MiddlePoint);
+                    Nbp++;
+                }
+            }
+            // Additional check for intervals
+            double MinLen2 = myMinLen * myMinLen;
+            int MaxNbp = 10 * Nbp;
+            for (i = 1; i < Nbp; ++i)
+            {
+                U1 = myParameters[(i)];
+                U2 = myParameters[(i + 1)];
+
+
+                if (U2 - U1 <= myUTol)
+                {
+                    continue;
+                }
+
+                // Check maximal deflection on interval;
+                double dmax = 0.0;
+                double umax = 0.0;
+                double amax = 0.0;
+                EstimDefl(theC, U1, U2, ref dmax, ref umax);
+                gp_Pnt P1 = myPoints[(i)];
+                gp_Pnt P2 = myPoints[(i + 1)];
+                D0(theC, umax, ref MiddlePoint);
+                amax = EstimAngl(P1, MiddlePoint, P2);
+                if (dmax > myCurvatureDeflection || amax > AngleMax)
+                {
+                    if (umax - U1 > myUTol && U2 - umax > myUTol)
+                    {
+                        if (P1.SquareDistance(MiddlePoint) > MinLen2
+                         && P2.SquareDistance(MiddlePoint) > MinLen2)
+                        {
+                            myParameters.InsertAfter(i, umax);
+                            myPoints.InsertAfter(i, MiddlePoint);
+                            ++Nbp;
+                            --i; //To compensate ++i in loop header: i must point to first part of split interval
+                            if (Nbp > MaxNbp)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        static double EstimAngl(gp_Pnt P1, gp_Pnt Pm, gp_Pnt P2)
+        {
+            gp_Vec V1 = new(P1, Pm), V2 = new(Pm, P2);
+            double L = V1.Magnitude() * V2.Magnitude();
+            if (L > gp.Resolution())
+            {
+                return V1.CrossMagnitude(V2) / L;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+        // Return number of interval of continuity on which theParam is located.
+        // Last parameter is used to increase search speed.
+        static int getIntervalIdx(double theParam,
+                                               TColStd_Array1OfReal theIntervs,
+                                          int thePreviousIdx)
+        {
+            int anIdx;
+            for (anIdx = thePreviousIdx; anIdx < theIntervs.Upper(); anIdx++)
+            {
+                if (theParam >= theIntervs[(anIdx)] &&
+                    theParam <= theIntervs[(anIdx + 1)]) // Inside of anIdx interval.
+                {
+                    break;
+                }
+            }
+            return anIdx;
+        }
+
+
+
+        public abstract class AbstractDistFunction : math_Function
+        {
+            public AbstractDistFunction(ITheCurve c, double U1, double U2)
+            {
+
+            }
+        }
+
+        void EstimDefl(ITheCurve theC, double theU1, double theU2,
+                                           ref double theMaxDefl, ref double theUMax)
+        {
+            double Du = (myLastU - myFirstu);
+            //            
+            var aFunc = Activator.CreateInstance(GetDistFunctionType(theC), new object[] { theC, theU1, theU2 }) as AbstractDistFunction;
+            //typename GCPnts_TCurveTypes<TheCurve>::DistFunction aFunc(theC, theU1, theU2);
+            //
+            const int aNbIter = 100;
+            double aRelTol = Math.Max(1e-3, 2.0 * myUTol / (Math.Abs(theU1) + Math.Abs(theU2)));
+            //
+            math_BrentMinimum anOptLoc = new(aRelTol, aNbIter, myUTol);
+            anOptLoc.Perform(aFunc, theU1, (theU1 + theU2) / 2.0, theU2);
+            if (anOptLoc.IsDone())
+            {
+                theMaxDefl = Math.Sqrt(-anOptLoc.Minimum());
+                theUMax = anOptLoc.Location();
+                return;
+            }
+            //
+            math_Vector aLowBorder = new(1, 1), aUppBorder = new(1, 1), aSteps = new(1, 1);
+            aSteps[(1)] = Math.Max(0.1 * Du, 100.0 * myUTol);
+            int aNbParticles = Math.Max(8, RealToInt(32 * (theU2 - theU1) / Du));
+            aLowBorder[(1)] = theU1;
+            aUppBorder[(1)] = theU2;
+            //
+            //
+            double aValue = 0.0;
+            math_Vector aT = new(1, 1);
+
+            //typename GCPnts_TCurveTypes<TheCurve>::DistFunctionMV aFuncMV(aFunc);
+            var aFuncMV = Activator.CreateInstance(GetDistFunctionMVType(theC), new object[] { aFunc }) as math_MultipleVarFunction;
+
+            math_PSO aFinder = new(aFuncMV, aLowBorder, aUppBorder, aSteps, aNbParticles);
+            aFinder.Perform(aSteps, ref aValue, ref aT);
+            //
+            anOptLoc.Perform(aFunc,
+                              Math.Max(aT[(1)] - aSteps[(1)], theU1),
+                              aT[(1)],
+                              Math.Min(aT[(1)] + aSteps[(1)], theU2));
+            if (anOptLoc.IsDone())
+            {
+                theMaxDefl = Math.Sqrt(-anOptLoc.Minimum());
+                theUMax = anOptLoc.Location();
+                return;
+            }
+
+            theMaxDefl = Math.Sqrt(-aValue);
+            theUMax = aT[(1)];
+        }
+
+        private Type GetDistFunctionType(ITheCurve theC)
+        {
+            if (theC is Adaptor2d_Curve2d b)
+            {
+
+            }
+            if (theC is Adaptor3d_Curve a)
+            {
+                return typeof(GCPnts_DistFunction);
+            }
+            return null;
+        }
+        private Type GetDistFunctionMVType(ITheCurve theC)
+        {
+            if (theC is Adaptor2d_Curve2d b)
+            {
+
+            }
+            if (theC is Adaptor3d_Curve a)
+            {
+
+            }
+            return null;
+        }
+        private int RealToInt(double v)
+        {
+            return (int)v;
+        }
+
+        public static void D2(ITheCurve C, double U,
+                             out gp_Pnt P, out gp_Vec V1, out gp_Vec V2)
+        {
+            if (C is Adaptor3d_Curve a)
+            {
+                D2(a, U, out P, out V1, out V2);
+            }
+            else
+            if (C is Adaptor2d_Curve2d b)
+            {
+                D2(b, U, out P, out V1, out V2);
+            }
+            else
+                throw new NotImplementedException();
         }
 
         public static void D2(Adaptor3d_Curve C, double U,
-                              out  gp_Pnt P, out gp_Vec V1, out gp_Vec V2)
+                              out gp_Pnt P, out gp_Vec V1, out gp_Vec V2)
         {
             C.D2(U, out P, out V1, out V2);
         }
@@ -280,7 +654,7 @@ namespace TKMesh
             double X, Y;
             gp_Pnt2d P;
             gp_Vec2d V1, V2;
-            C.D2(U, out P, out  V1, out  V2);
+            C.D2(U, out P, out V1, out V2);
             P.Coord(out X, out Y);
             PP.SetCoord(X, Y, 0.0);
             V1.Coord(out X, out Y);
@@ -289,14 +663,14 @@ namespace TKMesh
             VV2.SetCoord(X, Y, 0.0);
         }
 
-        public  void EvaluateDu(Adaptor3d_Curve theC,
+        public void EvaluateDu(ITheCurve theC,
                                                 double theU,
-                                              out  gp_Pnt theP,
+                                              out gp_Pnt theP,
                                                double theDu,
                                                bool theNotDone)
         {
             gp_Vec T, N;
-            D2(theC, theU, out theP, out T, out  N);
+            D2(theC, theU, out theP, out T, out N);
             double Lt = T.Magnitude();
             double LTol = Precision.Confusion();
             if (Lt > LTol && N.Magnitude() > LTol)
@@ -310,8 +684,22 @@ namespace TKMesh
                 }
             }
         }
-        
 
+
+        public static void D0(ITheCurve C, double U, ref gp_Pnt P)
+        {
+            if (C is Adaptor3d_Curve a)
+            {
+                D0(a, U, ref P);
+            }
+            else
+            if (C is Adaptor2d_Curve2d b)
+            {
+                D0(b, U, ref P);
+            }
+            else
+                throw new NotImplementedException();
+        }
         public static void D0(Adaptor3d_Curve C, double U, ref gp_Pnt P)
         {
             C.D0(U, ref P);
@@ -326,7 +714,7 @@ namespace TKMesh
             PP.SetCoord(X, Y, 0.0);
         }
 
-        public void PerformLinear(Adaptor2d_Curve2d theC)
+        public void PerformLinear(ITheCurve theC)
         {
             gp_Pnt P = new gp_Pnt();
             D0(theC, myFirstu, ref P);
@@ -348,28 +736,8 @@ namespace TKMesh
             myParameters.Append(myLastU);
             myPoints.Append(P);
         }
-        public void PerformLinear(Adaptor3d_Curve theC)
-        {
-            gp_Pnt P = new gp_Pnt();
-            D0(theC, myFirstu, ref P);
-            myParameters.Append(myFirstu);
-            myPoints.Append(P);
-            if (myMinNbPnts > 2)
-            {
-                double Du = (myLastU - myFirstu) / myMinNbPnts;
-                double U = myFirstu + Du;
-                for (int i = 2; i < myMinNbPnts; i++)
-                {
-                    D0(theC, U, ref P);
-                    myParameters.Append(U);
-                    myPoints.Append(P);
-                    U += Du;
-                }
-            }
-            D0(theC, myLastU, ref P);
-            myParameters.Append(myLastU);
-            myPoints.Append(P);
-        }
+
+
 
 
         TColgp_SequenceOfPnt myPoints = new TColgp_SequenceOfPnt();
@@ -421,6 +789,7 @@ namespace TKMesh
             return myParameters.Value(I);
         }
     }
+
 }
 
 

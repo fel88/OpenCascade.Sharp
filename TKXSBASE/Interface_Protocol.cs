@@ -1,4 +1,6 @@
-﻿namespace TKXSBASE
+﻿using OCCPort.Common;
+
+namespace TKXSBASE
 {
     //! General description of Interface Protocols. A Protocol defines
     //! a set of Entity types. This class provides also the notion of

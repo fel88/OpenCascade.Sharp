@@ -3,7 +3,20 @@
     public static class Standard_Real
     {
 
-
+        //-------------------------------------------------------------------
+        // Sign : Returns |a| if B >= 0; -|a| if b < 0.
+        //-------------------------------------------------------------------
+        public static double Sign(double a, double b)
+        {
+            if (b >= 0.0)
+            {
+                return Math.Abs(a);
+            }
+            else
+            {
+                return (-1.0 * Math.Abs(a));
+            }
+        }
         public static double Epsilon(double Value)
         {
             double aEpsilon;

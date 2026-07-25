@@ -1,6 +1,8 @@
 ﻿
 global using TopTools_SequenceOfShape = TKernel.NCollection_Sequence<TKBRep.TopoDS_Shape>;
 using OCCPort;
+using OCCPort.Common;
+using System.Reflection.Metadata;
 using TKernel;
 using TKXSBASE;
 
@@ -51,5 +53,4 @@ namespace TKSTEP
         TopTools_SequenceOfShape theshapes;
 
     }
-
 }

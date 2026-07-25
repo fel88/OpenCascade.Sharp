@@ -15,8 +15,9 @@ namespace TKG2d
     //! Polynomial coefficients of BSpline curves used for their evaluation are
     //! cached for better performance. Therefore these evaluations are not
     //! thread-safe and parallel evaluations need to be prevented.
-    public abstract class Adaptor2d_Curve2d
-    {
+    public abstract class Adaptor2d_Curve2d: ITheCurve
+    {        
+
         public abstract bool IsPeriodic();
 
         //! Computes the point of parameter U on the curve.

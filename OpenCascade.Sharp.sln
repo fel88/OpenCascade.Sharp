@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TKOpenGl", "TKOpenGl\TKOpen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TKBO", "TKBO\TKBO.csproj", "{876CD52A-B94C-4376-8539-45F597DDF45D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TKSTEPBase", "TKSTEPBase\TKSTEPBase.csproj", "{731F67D8-9A78-444D-9068-AF659CFCCEBD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -321,6 +323,18 @@ Global
 		{876CD52A-B94C-4376-8539-45F597DDF45D}.Release|x64.Build.0 = Release|Any CPU
 		{876CD52A-B94C-4376-8539-45F597DDF45D}.Release|x86.ActiveCfg = Release|Any CPU
 		{876CD52A-B94C-4376-8539-45F597DDF45D}.Release|x86.Build.0 = Release|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Debug|x64.Build.0 = Debug|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Debug|x86.Build.0 = Debug|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Release|x64.ActiveCfg = Release|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Release|x64.Build.0 = Release|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Release|x86.ActiveCfg = Release|Any CPU
+		{731F67D8-9A78-444D-9068-AF659CFCCEBD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -80,6 +80,15 @@ namespace TKG3d
             return false;
         }
 
+        //! Constructs a line passing through point P and parallel to vector V
+        //! (P and V are, respectively, the origin and the unit
+        //! vector of the positioning axis of the line).
+        public  Geom_Line( gp_Pnt P,  gp_Dir V)
+        {
+            pos = new(P, V);
+        }
+  
+
         public Geom_Line(gp_Ax1 A) { pos = (A); }
 
         public Geom_Line(gp_Lin L)
