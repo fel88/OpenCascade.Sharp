@@ -1,5 +1,6 @@
 ﻿using OCCPort.Common;
 using System.Reflection.Metadata;
+using System.Runtime.Intrinsics.X86;
 using TKG3d;
 using TKMath;
 using TKSTEPBase;
@@ -66,7 +67,7 @@ namespace TKSTEP
         public Geom_Line MakeLine(StepGeom_Line SC)
         {
             Geom_CartesianPoint P = MakeCartesianPoint(SC.Pnt());
-            if (P!=null)
+            if (P != null)
             {
                 // sln 22.10.2001. CTS23496: Line is not created if direction have not been successfully created
                 Geom_VectorWithMagnitude D = MakeVectorWithMagnitude(SC.Dir());
@@ -79,6 +80,131 @@ namespace TKSTEP
                     return new Geom_Line(P.Pnt(), V);
                 }
             }
+            return null;
+        }
+
+        //=============================================================================
+        // Creation d' un Axis2Placement de Geom a partir d' un axis2_placement_3d de Step
+        //=============================================================================
+
+        public Geom_Axis2Placement MakeAxis2Placement(StepGeom_Axis2Placement3d SA)
+        {
+            Geom_CartesianPoint P = MakeCartesianPoint(SA.Location());
+            if (P!=null)
+            {
+                gp_Pnt Pgp = P.Pnt();
+
+                // sln 22.10.2001. CTS23496: If problems with creation of direction occur default direction is used (MakeLine(...) function)
+                gp_Dir Ngp = new(0.0, 0.0, 1.0);
+                if (SA.HasAxis())
+                {
+                    Geom_Direction D = MakeDirection(SA.Axis());
+                    if (D != null)
+                        Ngp = D.Dir();
+                }
+
+                gp_Ax2 gpAx2 = new gp_Ax2();
+                bool isDefaultDirectionUsed = true;
+                if (SA.HasRefDirection())
+                {
+                    Geom_Direction D = MakeDirection(SA.RefDirection());
+                    if (D != null)
+                    {
+                        gp_Dir Vxgp = D.Dir();
+                        if (!Ngp.IsParallel(Vxgp, Precision.Angular()))
+                        {
+                            gpAx2 = new gp_Ax2(Pgp, Ngp, Vxgp);
+                            isDefaultDirectionUsed = false;
+                        }
+                    }
+                }
+                if (isDefaultDirectionUsed)
+                    gpAx2 = new gp_Ax2(Pgp, Ngp);
+
+                return new Geom_Axis2Placement(gpAx2);
+            }
+            return null;
+        }
+
+        //=============================================================================
+        // Creation of an AxisPlacement from a Kinematic SuParameters for Step
+        //=============================================================================
+
+        public Geom_Axis2Placement MakeAxis2Placement(StepGeom_SuParameters theSP)
+        {
+            double aLocX = theSP.A() * Math.Cos(theSP.Gamma()) + theSP.B() * Math.Sin(theSP.Gamma()) * Math.Sin(theSP.Alpha());
+            double aLocY = theSP.A() * Math.Sin(theSP.Gamma()) - theSP.B() * Math.Cos(theSP.Gamma()) * Math.Sin(theSP.Alpha());
+            double aLocZ = theSP.C() + theSP.B() * Math.Cos(theSP.Alpha());
+            double anAsisX = Math.Sin(theSP.Gamma()) * Math.Sin(theSP.Alpha());
+            double anAxisY = -Math.Cos(theSP.Gamma()) * Math.Sin(theSP.Alpha());
+            double anAxisZ = Math.Cos(theSP.Alpha());
+            double aDirX = Math.Cos(theSP.Gamma()) * Math.Cos(theSP.Beta()) - Math.Sin(theSP.Gamma()) * Math.Cos(theSP.Alpha()) * Math.Sin(theSP.Beta());
+            double aDirY = Math.Sin(theSP.Gamma()) * Math.Cos(theSP.Beta()) + Math.Cos(theSP.Gamma()) * Math.Cos(theSP.Alpha()) * Math.Sin(theSP.Beta());
+            double aDirZ = Math.Sin(theSP.Alpha()) * Math.Sin(theSP.Beta());
+            gp_Pnt Pgp = new(aLocX, aLocY, aLocZ);
+            gp_Dir Ngp = new(anAsisX, anAxisY, anAxisZ);
+            gp_Dir Vxgp = new(aDirX, aDirY, aDirZ);
+            gp_Ax2 gpAx2 = new gp_Ax2(Pgp, Ngp, Vxgp);
+            return new Geom_Axis2Placement(gpAx2);
+        }
+
+        //=============================================================================
+        // Creation d' une Surface de Geom a partir d' une Surface de Step
+        //=============================================================================
+
+        public Geom_Surface MakeSurface(StepGeom_Surface SS)
+        {
+            // sln 01.10.2001 BUC61003. If entry shell is NULL do nothing
+            if (SS == null)
+            {
+                return null;
+            }
+            try
+            {
+                //OCC_CATCH_SIGNALS
+                //if (SS->IsKind(STANDARD_TYPE(StepGeom_BoundedSurface)))
+                //{
+                //    return MakeBoundedSurface(Handle(StepGeom_BoundedSurface)::DownCast(SS));
+                //  }
+                if (SS is StepGeom_ElementarySurface)
+                {
+                    StepGeom_ElementarySurface S1 = (StepGeom_ElementarySurface)(SS);
+                    if (S1.Position() == null)
+                        return null;
+
+                    return MakeElementarySurface(S1);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return null;
+        }
+        //=============================================================================
+        // Creation d' une ElementarySurface de Geom a partir d' une
+        // ElementarySurface de Step
+        //=============================================================================
+
+        public Geom_ElementarySurface MakeElementarySurface(StepGeom_ElementarySurface SS)
+        {
+            if (SS is StepGeom_Plane)
+            {
+                return MakePlane((StepGeom_Plane)(SS));
+            }
+
+            return null;
+        }
+        //=============================================================================
+        // Creation d' un Plane de Geom a partir d' un plane de Step
+        //=============================================================================
+
+        public Geom_Plane MakePlane(StepGeom_Plane SP)
+        {
+            Geom_Axis2Placement A = MakeAxis2Placement(SP.Position());
+            if (A != null)
+                return new Geom_Plane(new gp_Ax3(A.Ax2()));
+
             return null;
         }
 

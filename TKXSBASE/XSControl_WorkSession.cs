@@ -61,6 +61,10 @@ namespace TKXSBASE
             //if (mode == 4 || mode == 5) myTransferReader->BeginTransfer();
         }
 
+        public XSControl_TransferReader TransferReader()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

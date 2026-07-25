@@ -2,7 +2,7 @@
 
 namespace OCCPort
 {
-    internal class TColStd_SequenceOfTransient
+    public class TColStd_SequenceOfTransient
     {
         internal void Append(object ent)
         {

@@ -1,4 +1,5 @@
 ﻿using AutoDialog;
+using OCCPort.Common;
 using OCCPort.OpenGL;
 using OpenTK;
 using OpenTK.GLControl;
@@ -22,8 +23,10 @@ using TKMath;
 using TKOpenGl;
 using TKPrim;
 using TKService;
+using TKSTEP;
 using TKTopAlgo;
 using TKV3d;
+using TKXSBASE;
 using static OpenTK.Graphics.OpenGL.GL;
 using static System.Windows.Forms.DataFormats;
 
@@ -863,6 +866,29 @@ namespace OCCPort.Tester
                          center + new Vector3d(-w / 2, h / 2, 0));
 
             }
+        }
+
+        private void toolStripButton12_Click_1(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "step files (*.stp)|*.stp";
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            STEPControl_Reader reader = new STEPControl_Reader();
+            IFSelect_ReturnStatus stat = reader.ReadFile(ofd.FileName);
+            IFSelect_PrintCount mode = IFSelect_PrintCount.IFSelect_ListByItem;
+            reader.PrintCheckLoad(false, mode);
+            
+            int NbTrans = reader.TransferRoots();
+            
+            TopoDS_Shape shape1 = reader.Shape();
+
+            var shape = new AIS_Shape(shape1);
+
+            myAISContext.Display(shape, true);
+            myAISContext.SetDisplayMode(shape, (int)AIS_DisplayMode.AIS_Shaded, false);
+            myAISContext.UpdateCurrentViewer();
         }
     }
 }

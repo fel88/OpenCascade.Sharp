@@ -57,6 +57,7 @@
             toolStripButton20 = new System.Windows.Forms.ToolStripButton();
             toolStripButton8 = new System.Windows.Forms.ToolStripButton();
             toolStripButton13 = new System.Windows.Forms.ToolStripButton();
+            toolStripButton12 = new System.Windows.Forms.ToolStripButton();
             toolStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
             toolStripContainer1.TopToolStripPanel.SuspendLayout();
@@ -76,7 +77,7 @@
             toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { toolStripButton1, toolStripDropDownButton1, toolStripButton2, toolStripButton14, toolStripButton3, toolStripButton4, toolStripButton5, toolStripButton6, toolStripButton9, toolStripButton10, toolStripButton11, toolStripButton15, toolStripButton17 });
             toolStrip1.Location = new System.Drawing.Point(3, 0);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new System.Drawing.Size(738, 25);
+            toolStrip1.Size = new System.Drawing.Size(707, 25);
             toolStrip1.TabIndex = 0;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -256,10 +257,10 @@
             // toolStrip2
             // 
             toolStrip2.Dock = System.Windows.Forms.DockStyle.None;
-            toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { toolStripButton18, toolStripButton19, toolStripButton7, toolStripButton20, toolStripButton8, toolStripButton13 });
+            toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { toolStripButton18, toolStripButton19, toolStripButton7, toolStripButton20, toolStripButton8, toolStripButton13, toolStripButton12 });
             toolStrip2.Location = new System.Drawing.Point(3, 25);
             toolStrip2.Name = "toolStrip2";
-            toolStrip2.Size = new System.Drawing.Size(485, 25);
+            toolStrip2.Size = new System.Drawing.Size(604, 25);
             toolStrip2.TabIndex = 1;
             // 
             // toolStripButton18
@@ -315,6 +316,15 @@
             toolStripButton13.Size = new System.Drawing.Size(79, 22);
             toolStripButton13.Text = "add plane";
             toolStripButton13.Click += toolStripButton13_Click_1;
+            // 
+            // toolStripButton12
+            // 
+            toolStripButton12.Image = (System.Drawing.Image)resources.GetObject("toolStripButton12.Image");
+            toolStripButton12.ImageTransparentColor = System.Drawing.Color.Magenta;
+            toolStripButton12.Name = "toolStripButton12";
+            toolStripButton12.Size = new System.Drawing.Size(88, 22);
+            toolStripButton12.Text = "import step";
+            toolStripButton12.Click += toolStripButton12_Click_1;
             // 
             // Form1
             // 
@@ -372,6 +382,7 @@
         private System.Windows.Forms.ToolStripButton toolStripButton20;
         private System.Windows.Forms.ToolStripButton toolStripButton8;
         private System.Windows.Forms.ToolStripButton toolStripButton13;
+        private System.Windows.Forms.ToolStripButton toolStripButton12;
     }
 }
 

@@ -3,7 +3,10 @@ global using TopTools_SequenceOfShape = TKernel.NCollection_Sequence<TKBRep.Topo
 using OCCPort;
 using OCCPort.Common;
 using System.Reflection.Metadata;
+using TKBRep;
 using TKernel;
+using TKG3d;
+using TKShHealing;
 using TKXSBASE;
 
 namespace TKSTEP
@@ -49,8 +52,52 @@ namespace TKSTEP
             thesession.InitTransferReader(4);
             return stat;
         }
+
+        public void PrintCheckLoad(
+                                          bool failsonly,
+                                          IFSelect_PrintCount mode)
+        {
+            //Message_Messenger.StreamBuffer aBuffer = Message.SendInfo();
+            //PrintCheckLoad(aBuffer, failsonly, mode);
+        }
+
+        //! Returns the shape resulting
+        //! from a translation and identified by the rank num.
+        //! num equals 1 by default. In other words, the first shape
+        //! resulting from the translation is returned.
+        public TopoDS_Shape Shape(int num = 1)
+        {
+            return theshapes.Value(num);
+
+        }
+
+        protected NCollection_Sequence<object> theroots = new NCollection_Sequence<object>();
+
         XSControl_WorkSession thesession;
         TopTools_SequenceOfShape theshapes;
+        public int TransferRoots(Message_ProgressRange theProgress = null)
+        {
+            if (theProgress == null) theProgress = new Message_ProgressRange();
+            //NbRootsForTransfer();
+            int nbt = 0;
+            int i, nb = theroots.Length();
+            XSControl_TransferReader TR = thesession.TransferReader();
+
+            //TR.BeginTransfer();
+            //  ClearShapes();
+            ShapeExtend_Explorer STU = new ShapeExtend_Explorer();
+            Message_ProgressScope PS = new(theProgress, "Root", nb);
+            for (i = 1; i <= nb && PS.More(); i++)
+            {
+                object start = theroots.Value(i);
+                if (TR.TransferOne(start, true, PS.Next()) == 0) continue;
+                //   TopoDS_Shape sh = TR.ShapeResult(start);
+                // if (STU.ShapeType(sh, true) == TopAbs_ShapeEnum.TopAbs_SHAPE) continue;  // nulle-vide
+                //   theshapes.Append(sh);
+                nbt++;
+            }
+            return nbt;
+        }
 
     }
 }
