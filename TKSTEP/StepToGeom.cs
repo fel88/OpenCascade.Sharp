@@ -1,10 +1,17 @@
-﻿using OCCPort.Common;
+﻿
+global using StepToTopoDS_DataMapOfTRI= TKernel.NCollection_DataMap<TKSTEPBase.StepShape_TopologicalRepresentationItem,TKBRep.TopoDS_Shape, TKernel.NCollection_DefaultHasher<TKSTEPBase.StepShape_TopologicalRepresentationItem>> ;
+
+using System;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.Intrinsics.X86;
+using TKBRep;
+using TKernel;
 using TKG3d;
 using TKMath;
 using TKSTEPBase;
 using TKXSBASE;
+
 
 namespace TKSTEP
 {
@@ -90,7 +97,7 @@ namespace TKSTEP
         public Geom_Axis2Placement MakeAxis2Placement(StepGeom_Axis2Placement3d SA)
         {
             Geom_CartesianPoint P = MakeCartesianPoint(SA.Location());
-            if (P!=null)
+            if (P != null)
             {
                 gp_Pnt Pgp = P.Pnt();
 
@@ -220,5 +227,94 @@ namespace TKSTEP
             }
             return null;
         }
+    }
+
+
+    //! This class performs the transfer of an Entity from
+    //! AP214 and AP203, either Geometric or Topologic.
+    //!
+    //! I.E. for each type of Entity, it invokes the appropriate Tool
+    //! then returns the Binder which contains the Result
+    public class STEPControl_ActorRead : Transfer_ActorOfTransientProcess
+    {
+        //! Transfers  geometric representation item entity such as ManifoldSolidBRep ,...etc
+        public TransferBRep_ShapeBinder TransferEntity
+                    (StepGeom_GeometricRepresentationItem start,
+                      Transfer_TransientProcess TP,
+                      bool isManifold,
+                      Message_ProgressRange theProgress)
+        {
+            //Message_Messenger::StreamBuffer sout = TP->Messenger()->SendInfo();
+            TransferBRep_ShapeBinder shbinder;
+            bool found = false;
+            StepToTopoDS_Builder myShapeBuilder = new StepToTopoDS_Builder();
+            TopoDS_Shape mappedShape;
+            int nbTPitems = TP.NbMapped();
+
+            // Start progress scope (no need to check if progress exists -- it is safe)
+            Message_ProgressScope aPS = new(theProgress, "Transfer stage", isManifold ? 2 : 1);
+
+            Message_ProgressRange aRange = aPS.Next();
+
+            if (start is StepShape_ManifoldSolidBrep)
+            {
+                myShapeBuilder.Init(((StepShape_ManifoldSolidBrep)start), TP, aRange);
+                found = true;
+            }
+
+            return null;//
+        }
+    }
+
+    //! The original class was renamed. Compatibility only
+    public class Transfer_ActorOfTransientProcess : Transfer_ActorOfProcessForTransient
+    {
+    }
+    public class Transfer_ActorOfProcessForTransient
+    { }
+
+
+    public class StepShape_ManifoldSolidBrep : StepShape_SolidModel
+    {
+        public StepShape_ConnectedFaceSet Outer()
+        {
+            return outer;
+        }
+        StepShape_ConnectedFaceSet outer;
+
+    }
+
+    public class StepShape_SolidModel : StepGeom_GeometricRepresentationItem
+    {
+    }
+
+    enum StepToTopoDS_BuilderError
+    {
+        StepToTopoDS_BuilderDone,
+        StepToTopoDS_BuilderOther
+    };
+
+    public enum StepToTopoDS_TranslateShellError
+    {
+        StepToTopoDS_TranslateShellDone,
+        StepToTopoDS_TranslateShellOther
+    };
+
+
+
+
+
+    enum StepToTopoDS_TranslateFaceError
+    {
+        StepToTopoDS_TranslateFaceDone,
+        StepToTopoDS_TranslateFaceOther
+    };
+
+
+
+    //! Provides data to process non-manifold topology when
+    //! reading from STEP.
+    public class StepToTopoDS_NMTool
+    {
     }
 }

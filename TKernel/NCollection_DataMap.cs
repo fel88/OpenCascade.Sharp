@@ -183,7 +183,7 @@ namespace TKernel
             return Extent();
         }
         //! ReSize
-        void ReSize(int N)
+       public  void ReSize(int N)
         {
             NCollection_ListNode[] newdata = null;
             NCollection_ListNode[] dummy = null;

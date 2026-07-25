@@ -39,5 +39,4 @@
         IFSelect_Mapping,
         IFSelect_ResultCount
     };
-
 }

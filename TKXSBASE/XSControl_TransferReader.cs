@@ -23,10 +23,65 @@ namespace TKXSBASE
     //! Some more direct access are given for results which are
     //! Transient or Shapes
     public class XSControl_TransferReader
-    {//! Commands the transfer on reading for an entity to data for
-     //! Imagine, using the selected Actor for Read
-     //! Returns count of transferred entities, ok or with fails (0/1)
-     //! If <rec> is True (D), the result is recorded by RecordResult
+    {
+        XSControl_Controller myController;
+        Transfer_ActorOfTransientProcess myActor;
+        public void SetGraph(Interface_HGraph graph)
+        {
+            if (graph == null)
+            {
+                myModel = null;
+            }
+            else
+                myModel = graph.Graph().Model();
+
+            myGraph = graph;
+
+            if (myTP!=null) myTP.SetGraph(graph);
+        }
+
+        Interface_HGraph myGraph;
+
+        public void SetController(XSControl_Controller control)
+        {
+            myController = control;
+            myActor = null;
+            Clear(-1);
+        }
+
+        //! Returns the currently used TransientProcess
+        //! It is computed from the model by TransferReadRoots, or by
+        //! BeginTransferRead
+        public Transfer_TransientProcess TransientProcess()
+        { return myTP; }
+
+        //! Clears data, according mode :
+        //! -1 all
+        //! 0 nothing done
+        //! +1 final results
+        //! +2 working data (model, context, transfer process)
+        public void Clear(int mode)
+        {
+            if ((mode & 1) != 0)
+            {
+                myResults.Clear();
+                ///myShapeResult.Nullify();
+            }
+            if ((mode & 2) != 0)
+            {
+                myModel = null;
+                //myGraph = null;
+                // myTP.Nullify();
+                //  myActor.Nullify();
+                myFileName = null;
+            }
+        }
+
+
+        //! Commands the transfer on reading for an entity to data for
+        //! Imagine, using the selected Actor for Read
+        //! Returns count of transferred entities, ok or with fails (0/1)
+        //! If <rec> is True (D), the result is recorded by RecordResult
         public int TransferOne(object theEnt,
                                                  bool theRec = true,
                                                  Message_ProgressRange theProgress = default)
@@ -67,4 +122,48 @@ namespace TKXSBASE
     {
     }
 
+
+    //! TransferWriter gives help to control transfer to write a file
+    //! after having converted data from Cascade/Imagine
+    //!
+    //! It works with a Controller (which itself can work with an
+    //! Actor to Write) and a FinderProcess. It records results and
+    //! checks
+    public class XSControl_TransferWriter
+    {
+        Transfer_FinderProcess myTransferWriter;
+
+        public void Clear(int mode)
+        {
+            if (mode < 0 || myTransferWriter == null)
+                myTransferWriter = new Transfer_FinderProcess();
+            else myTransferWriter.Clear();
+        }
+    }
+
+
+    //! Adds specific features to the generic definition :
+    //! PrintTrace is adapted
+    public class Transfer_FinderProcess : Transfer_ProcessForFinder
+    {
+        internal void Clear()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class Transfer_ProcessForFinder
+    {
+    }
+
+
+    //! The original class was renamed. Compatibility only
+    public class Transfer_ActorOfTransientProcess : Transfer_ActorOfProcessForTransient
+    {
+    }
+
+
+    public class Transfer_ActorOfProcessForTransient
+    {
+    }
 }

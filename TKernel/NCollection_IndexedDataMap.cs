@@ -154,7 +154,7 @@ namespace TKernel
         }
 
         //! ReSize
-        void ReSize(int N)
+      public   void ReSize(int N)
         {
             NCollection_ListNode[] ppNewData1 = null;
             NCollection_ListNode[] ppNewData2 = null;

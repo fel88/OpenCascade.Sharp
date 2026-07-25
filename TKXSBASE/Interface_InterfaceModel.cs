@@ -1,4 +1,6 @@
-﻿namespace TKXSBASE
+﻿using System.Reflection.Metadata;
+
+namespace TKXSBASE
 {
     //! Defines an (Indexed) Set of data corresponding to a complete
     //! Transfer by a File Interface, i.e. File Header and Transient
@@ -28,6 +30,10 @@
     //! See also Graph, ShareTool, CheckTool for more
     public abstract class Interface_InterfaceModel
     {
+        public void SetProtocol(Interface_Protocol proto)
+        {
+            thegtool = new Interface_GTool(proto);
+        }
 
         //! Erases information about labels, if any : specific to each
         //! norm

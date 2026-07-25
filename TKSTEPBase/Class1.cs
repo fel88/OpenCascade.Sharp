@@ -1,6 +1,7 @@
 ﻿using OCCPort.Common;
 using System;
 using System.Reflection.Metadata;
+using TKernel;
 
 namespace TKSTEPBase
 {
@@ -15,6 +16,14 @@ namespace TKSTEPBase
         }
     }
     public class StepGeom_GeometricRepresentationItem : StepRepr_RepresentationItem
+    {
+    }
+
+    public class StepShape_HArray1OfFace : StepShape_Array1OfFace
+    {
+
+    }
+    public class StepShape_Array1OfFace : NCollection_Array1<StepShape_Face>
     {
     }
 
@@ -47,6 +56,14 @@ namespace TKSTEPBase
 
     }
 
+
+
+    public class StepShape_TopologicalRepresentationItem : StepRepr_RepresentationItem
+    {
+
+    }
+    public class StepShape_Face : StepShape_TopologicalRepresentationItem
+    { }
 
     public class StepGeom_Placement : StepGeom_GeometricRepresentationItem
     {
