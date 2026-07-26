@@ -274,6 +274,11 @@ namespace TKService
 
         }
 
+        //! Returns <ASet> the group of structures :
+        //! - directly or indirectly connected to <AStructure> if the
+        //! TypeOfConnection == TOC_DESCENDANT
+        //! - to which <AStructure> is directly or indirectly connected
+        //! if the TypeOfConnection == TOC_ANCESTOR
         public static void Network(Graphic3d_Structure theStructure,
 
                                         Graphic3d_TypeOfConnection theType,
@@ -284,17 +289,17 @@ namespace TKService
             {
                 case Graphic3d_TypeOfConnection.Graphic3d_TOC_DESCENDANT:
                     {
-                        foreach (var anIter in theStructure.myDescendants)
+                        for (NCollection_IndexedMap<Graphic3d_Structure>.Iterator anIter =new(theStructure.myDescendants); anIter.More(); anIter.Next())                            
                         {
-                            Network(anIter, theType, theSet);
+                            Network(anIter.Value(), theType, theSet);
                         }
                         break;
                     }
                 case Graphic3d_TypeOfConnection.Graphic3d_TOC_ANCESTOR:
                     {
-                        foreach (var anIter in theStructure.myAncestors)
+                        for (NCollection_IndexedMap<Graphic3d_Structure>.Iterator anIter=new (theStructure.myAncestors); anIter.More(); anIter.Next())
                         {
-                            Network(anIter, theType, theSet);
+                            Network(anIter.Value(), theType, theSet);
                         }
                         break;
                     }
@@ -490,10 +495,9 @@ namespace TKService
             Graphic3d_BndBox3d aCombinedBox = new Graphic3d_BndBox3d(), aBox = new Graphic3d_BndBox3d();
             getBox(ref aCombinedBox, theToIgnoreInfiniteFlag);
 
-            //for (NCollection_IndexedMap<Graphic3d_Structure*>::Iterator anIter (myDescendants); anIter.More(); anIter.Next())
-            foreach (var anIter in myDescendants)
+            for (NCollection_IndexedMap<Graphic3d_Structure>.Iterator anIter =new(myDescendants); anIter.More(); anIter.Next())            
             {
-                Graphic3d_Structure aStruct = anIter;
+                Graphic3d_Structure aStruct = anIter.Value();
                 aStruct.getBox(ref aBox, theToIgnoreInfiniteFlag);
                 aCombinedBox.Combine(aBox);
             }

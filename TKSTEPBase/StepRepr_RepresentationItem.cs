@@ -34,45 +34,7 @@ namespace TKSTEPBase
     public class StepGeom_Point : StepGeom_GeometricRepresentationItem
     {
     }
-
-
-    public class StepGeom_Plane : StepGeom_ElementarySurface
-    {
-
-    }
-
-    public class StepGeom_ElementarySurface : StepGeom_Surface
-    {
-        public StepGeom_Axis2Placement3d Position()
-        {
-            return position;
-        }
-        StepGeom_Axis2Placement3d position;
-
-    }
-
-    public class StepGeom_Surface : StepGeom_GeometricRepresentationItem
-    {
-
-    }
-
-
-
-    public class StepShape_TopologicalRepresentationItem : StepRepr_RepresentationItem
-    {
-
-    }
     public class StepShape_Face : StepShape_TopologicalRepresentationItem
     { }
-
-    public class StepGeom_Placement : StepGeom_GeometricRepresentationItem
-    {
-        public StepGeom_CartesianPoint Location()
-        {
-            return location;
-        }
-        StepGeom_CartesianPoint location;
-
-    }
 
 }

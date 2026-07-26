@@ -240,16 +240,18 @@ namespace OCCPort
                                      OpenGl_GlobalLayerSettings theDefaultSettings,
                                      Graphic3d_Layer theLayer)
         {
+
+            /* more code here*/
+
             // render priority list
             int aViewId = theWorkspace.View().Identification();
             for (int aPriorityIter = (int)Graphic3d_DisplayPriority.Graphic3d_DisplayPriority_Bottom; aPriorityIter <= (int)Graphic3d_DisplayPriority.Graphic3d_DisplayPriority_Topmost; ++aPriorityIter)
             {
                 Graphic3d_IndexedMapOfStructure aStructures = theLayer.Structures((Graphic3d_DisplayPriority)aPriorityIter);
-                foreach (var aStruct in aStructures.OfType<OpenGl_Structure>())
+                for (OpenGl_Structure.StructIterator aStructIter =new(aStructures); aStructIter.More(); aStructIter.Next())
                 //for (OpenGl_Structure.StructIterator aStructIter = new OpenGl_Structure.StructIterator(aStructures); aStructIter.More(); aStructIter.Next())
                 {
-
-                    //OpenGl_Structure aStruct = aStructIter.Value();
+                    OpenGl_Structure aStruct = aStructIter.Value();
                     if (aStruct.IsCulled()
                     || !aStruct.IsVisible(aViewId))
                     {

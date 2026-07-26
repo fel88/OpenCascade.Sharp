@@ -1,4 +1,7 @@
-﻿namespace TKXSBASE
+﻿using OCCPort.Common;
+using System;
+
+namespace TKXSBASE
 {
     //! Gives basic data structure for operating and storing
     //! graph results (usage is normally internal)
@@ -22,6 +25,13 @@
     public class Interface_Graph
     {
 
+        public void SetStatus(int num, int stat)
+        {
+            if (thestats != null)
+                thestats.SetValue(num, stat);
+        }
+
+        TColStd_HArray1OfInteger thestats;
 
         //! Returns the Model with which this Graph was created
         public Interface_InterfaceModel Model()

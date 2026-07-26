@@ -4,6 +4,7 @@ global using TColStd_IndexedDataMapOfTransientTransient = TKernel.NCollection_In
 global using TColStd_IndexedMapOfTransient = TKernel.NCollection_IndexedMap<object, TKernel.NCollection_DefaultHasher<object>>;
 global using TColStd_MapTransientHasher = TKernel.NCollection_DefaultHasher<object>;
 using OCCPort.Common;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -21,7 +22,107 @@ namespace TKXSBASE
     //! Identifier is attached. A Name can be attached too as desired.
     public class IFSelect_WorkSession
     {
+        protected Interface_HGraph thegraph;
 
+        //! Computes the Graph used for Selections, Displays ...
+        //! If a HGraph is already set, with same model as given by method
+        //! Model, does nothing. Else, computes a new Graph.
+        //! If <enforce> is given True, computes a new Graph anyway.
+        //! Remark that a call to ClearGraph will cause ComputeGraph to
+        //! really compute a new Graph
+        //! Returns True if Graph is OK, False else (i.e. if no Protocol
+        //! is set, or if Model is absent or empty).
+        public bool ComputeGraph(bool enforce = false)
+        {
+            if (theprotocol == null) return false;
+            if (myModel == null) return false;
+            if (enforce) thegraph = null;
+            if (thegraph != null)
+            {
+             //   if (myModel.NbEntities() == thegraph.Graph().Size()) return true;
+              //  thegraph = null;
+            }
+            if (myModel.NbEntities() == 0) return false;
+            //  Il faut calculer le graphe pour de bon
+            thegraph = new Interface_HGraph(myModel, themodelstat);
+            int nb = myModel.NbEntities();
+            if (themodelstat)
+            {
+                int i; // svv #1
+                for (i = 1; i <= nb; i++) thegraph.CGraph().SetStatus(i, 0);
+                //Interface_BitMap bm = thegraph.CGraph().CBitMap();
+               // bm.AddFlag();
+               // bm.SetFlagName(Flag_Incorrect, "Incorrect");
+            }
+            ComputeCheck();
+            thecheckdone = true;
+            if (themodelstat)
+            {
+                //  Calcul des categories, a present memorisees dans le modele
+                //Interface_Category categ = new(thegtool);
+             //   Interface_ShareTool sht = new(thegraph);
+              //  int i = 1;
+              //  for (; i <= nb; i++)
+              //      myModel.SetCategoryNumber(i, categ.CatNum(myModel.Value(i), sht));
+            }
+
+            return true;
+        }
+
+        public bool IsLoaded()
+        {
+            if (theprotocol == null) return false;
+            if (myModel == null) return false;
+            if (myModel.NbEntities() == 0) return false;
+            if (thegraph == null) return false;
+            //if (myModel.NbEntities() == thegraph.Graph().Size()) return true;
+            return false;
+        }
+        const int Flag_Incorrect = 2;
+
+        //! Computes the CheckList for the Model currently loaded
+        //! It can then be used for displays, queries ...
+        //! Returns True if OK, False else (i.e. no Protocol set, or Model
+        //! absent). If <enforce> is False, works only if not already done
+        //! or if a new Model has been loaded from last call.
+        //! Remark : computation is enforced by every call to
+        //! SetModel or RunTransformer
+        public bool ComputeCheck(bool enforce = false)
+        {
+            if (enforce) thecheckdone = false;
+            if (thecheckdone) return true;
+            if (!IsLoaded()) return false;
+
+            Interface_Graph CG = thegraph.CGraph();
+            Interface_CheckTool cht = new(thegraph);
+            Interface_CheckIterator checklist = cht.VerifyCheckList();
+            myModel.FillSemanticChecks(checklist, false);
+            if (themodelstat)
+            {
+                //  Et on met a jour le Graphe (BitMap) !  Flag Incorrect (STX + SEM)
+             /*   Interface_BitMap BM = CG.CBitMap();
+                BM.Init(false, Flag_Incorrect);
+                int num, nb = CG.Size();
+                for (checklist.Start(); checklist.More(); checklist.Next())
+                {
+                    Interface_Check chk = checklist.Value();
+                    if (!chk.HasFailed()) continue;
+                    num = checklist.Number();
+                    if (num > 0 && num <= nb) BM.SetTrue(num, Flag_Incorrect);
+                }*/
+                //for (num = 1; num <= nb; num++)
+                    //if (myModel.IsErrorEntity(num)) BM.SetTrue(num, Flag_Incorrect);
+            }
+            return true;
+        }
+
+
+        public Interface_Graph Graph()
+        {
+            ComputeGraph();
+            if (thegraph == null) throw new Standard_DomainError("IFSelect WorkSession : Graph not available");
+            return thegraph.Graph();
+        }
 
         protected TColStd_IndexedDataMapOfTransientTransient theitems;
         //! Stores the filename used for read for setting the model
@@ -41,15 +142,15 @@ namespace TKXSBASE
             if (myModel != model)
                 theloaded = string.Empty;
             myModel = model;
-          //  if (thegtool != null)
-           //     thegtool.ClearEntities(); //smh#14 FRA62479
+            //  if (thegtool != null)
+            //     thegtool.ClearEntities(); //smh#14 FRA62479
 
-        //    myModel.SetGTool(thegtool);
+            //    myModel.SetGTool(thegtool);
 
-         //   thegraph.Nullify();
-          //  ComputeGraph();    // fait qqchose si Protocol present. Sinon, ne fait rien
+            //   thegraph.Nullify();
+            //  ComputeGraph();    // fait qqchose si Protocol present. Sinon, ne fait rien
             ClearData(3);      // RAZ CheckList, a refaire
-        //    thecheckrun.Clear();
+                               //    thecheckrun.Clear();
 
             //  MISE A JOUR des SelectPointed  C-A-D  on efface leur contenu
             if (clearpointed)
@@ -58,7 +159,7 @@ namespace TKXSBASE
             ClearData(0);
         }
 
-        public object Item  (int id)
+        public object Item(int id)
         {
             object res = null;
             if (id <= 0 || id > MaxIdent())
@@ -87,10 +188,10 @@ namespace TKXSBASE
                             myModel = null;
                         }
                         ClearData(2); ClearData(4);
-                     //   thecheckrun.Clear();
+                        //   thecheckrun.Clear();
                         break;
                     }
-               // case 2: { thegraph.Nullify(); thecheckdone = false; thecheckana.Clear(); break; }
+                // case 2: { thegraph.Nullify(); thecheckdone = false; thecheckana.Clear(); break; }
                 case 3: { thecheckdone = false; break; }
                 case 4:
                     {
@@ -103,26 +204,26 @@ namespace TKXSBASE
                         int i; // svv #1 
                         for (i = 1; i <= nb; i++)
                         {
-                         //   DeclareAndCast(IFSelect_SelectPointed, sp, Item(list->Value(i)));
-                         //   if (!sp.IsNull()) sp->Clear();
+                            //   DeclareAndCast(IFSelect_SelectPointed, sp, Item(list->Value(i)));
+                            //   if (!sp.IsNull()) sp->Clear();
                         }
-                       // list = ItemIdents(STANDARD_TYPE(IFSelect_SignatureList));
+                        // list = ItemIdents(STANDARD_TYPE(IFSelect_SignatureList));
                         //nb = list->Length();
                         for (i = 1; i <= nb; i++)
                         {
-                         //   DeclareAndCast(IFSelect_SignatureList, sl, Item(list->Value(i)));
-                          //  if (!sl.IsNull()) sl->Clear();
-                        //    DeclareAndCast(IFSelect_SignCounter, sc, sl);
-                         //   if (!sc.IsNull()) sc->SetSelMode(-1);
+                            //   DeclareAndCast(IFSelect_SignatureList, sl, Item(list->Value(i)));
+                            //  if (!sl.IsNull()) sl->Clear();
+                            //    DeclareAndCast(IFSelect_SignCounter, sc, sl);
+                            //   if (!sc.IsNull()) sc->SetSelMode(-1);
                         }
                         //list = ItemIdents(STANDARD_TYPE(IFSelect_EditForm));
-                     //   nb = list.Length();
+                        //   nb = list.Length();
                         object nulent;
                         for (i = 1; i <= nb; i++)
                         {
                             //DeclareAndCast(IFSelect_EditForm, edf, Item(list->Value(i)));
-                        //    IFSelect_EditForm edf = Item(list.Value(i));
-                          //  edf.ClearData();
+                            //    IFSelect_EditForm edf = Item(list.Value(i));
+                            //  edf.ClearData();
                         }
                         theitems.Clear();
                         break;
@@ -234,19 +335,6 @@ namespace TKXSBASE
     public class IFSelect_SelectBase : IFSelect_Selection
     {
     }
-
-
-    //! A Selection allows to define a set of Interface Entities.
-    //! Entities to be put on an output file should be identified in
-    //! a way as independent from such or such execution as possible.
-    //! This permits to handle comprehensive criteria, and to replay
-    //! them when a new variant of an input file has to be processed.
-    //!
-    //! Its input can be, either an Interface Model (the very source),
-    //! or another-other Selection(s) or any other output.
-    //! All list computations start from an input Graph (from IFGraph)
-    public class IFSelect_Selection
-    {
-
-    }
 }
+
+

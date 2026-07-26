@@ -1,4 +1,7 @@
-﻿namespace TKSTEP
+﻿using OCCPort.Common;
+using TKXSBASE;
+
+namespace TKSTEP
 {
 
     //! Reads STEP files, checks them and translates their contents
@@ -39,7 +42,40 @@
     public class STEPControl_Reader : XSControl_Reader
 
     {
+        public override int NbRootsForTransfer()
+        {
+            if (therootsta) return theroots.Length();
+            therootsta = true;
+
+            //theroots.Clear();
+            int nb = Model().NbEntities();
+            for (int i = 1; i <= nb; i++)
+            {
+                object ent = Model().Value(i);
+                if (Interface_Static.IVal("read.step.all.shapes") == 1)
+                {
+                    // Special case to read invalid shape_representation without links to shapes.
+                    if (ent is StepShape_ManifoldSolidBrep)
+                    {
+                        /*Interface_EntityIterator aShareds = WS().Graph().Sharings(ent);
+                        if (!aShareds.More())
+                        {
+                            theroots.Append(ent);
+                            WS().TransferReader().TransientProcess().RootsForTransfer().Append(ent);
+                        }*/
+                    }
+                }
+            }
+
+
+
+            return theroots.Length();
+        }
 
     }
+
+
+
+    
 
 }

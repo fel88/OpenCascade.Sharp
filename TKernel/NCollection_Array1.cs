@@ -17,7 +17,7 @@ namespace TKernel
         {
             myLowerBound = 1;
             myUpperBound = 0;
-            
+
             //myDeletable(Standard_False),
             //  myData(NULL)
 
@@ -162,6 +162,12 @@ namespace TKernel
         {
             Exceptions.Standard_OutOfRange_Raise_if(theIndex < myLowerBound || theIndex > myUpperBound, "NCollection_Array1::Value");
             return list[theIndex - myLowerBound];
+        }
+
+        public void ChangeValue(int theIndex, T val)
+        {
+            Exceptions.Standard_OutOfRange_Raise_if(theIndex < myLowerBound || theIndex > myUpperBound, "NCollection_Array1::Value");
+            list[theIndex - myLowerBound] = val;
         }
 
         public class TRef : ITref<T>

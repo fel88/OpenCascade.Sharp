@@ -50,8 +50,10 @@ namespace TKService
             for (int aPriorIter = (int)Graphic3d_DisplayPriority.Graphic3d_DisplayPriority_Bottom; aPriorIter <= (int)Graphic3d_DisplayPriority.Graphic3d_DisplayPriority_Topmost; ++aPriorIter)
             {
                 Graphic3d_IndexedMapOfStructure aStructures = myArray[aPriorIter];
-                foreach (var aStructure in aStructures)
+                for (Graphic3d_IndexedMapOfStructure.Iterator aStructIter =new(aStructures); aStructIter.More(); aStructIter.Next())                    
                 {
+                    Graphic3d_CStructure aStructure = aStructIter.Value();
+
                     if (!aStructure.IsVisible(theViewId)
                      || aStructure.TransformPersistence() == null
                      || !aStructure.TransformPersistence().IsZoomOrRotate())
@@ -540,7 +542,7 @@ namespace TKService
         Graphic3d_BvhCStructureSetTrsfPers myBVHPrimitivesTrsfPers;
 
 
-
+        //! Sets settings of the layer object.
         public void SetLayerSettings(Graphic3d_ZLayerSettings theSettings)
         {
             bool toUpdateTrsf = !myLayerSettings.Origin().IsEqual(theSettings.Origin(), gp.Resolution());
@@ -553,16 +555,16 @@ namespace TKService
             for (int aPriorIter = (int)Graphic3d_DisplayPriority.Graphic3d_DisplayPriority_Bottom; aPriorIter <= (int)Graphic3d_DisplayPriority.Graphic3d_DisplayPriority_Topmost; ++aPriorIter)
             {
                 Graphic3d_IndexedMapOfStructure aStructures = myArray[aPriorIter];
-                foreach (var aStructIter in aStructures)
+                for (Graphic3d_IndexedMapOfStructure.Iterator aStructIter=new (aStructures); aStructIter.More(); aStructIter.Next())
                 {
-                    Graphic3d_CStructure aStructure = (Graphic3d_CStructure)(aStructIter);
+                    Graphic3d_CStructure aStructure = (aStructIter.Value());
                     aStructure.updateLayerTransformation();
                 }
                 //for (Graphic3d_IndexedMapOfStructure::Iterator aStructIter (aStructures); aStructIter.More(); aStructIter.Next())				
             }
         }
     }
-    public class Graphic3d_IndexedMapOfStructure : NCollection_IndexedMap<Graphic3d_CStructure, NCollection_DefaultHasher<Graphic3d_CStructure>>
+    public class Graphic3d_IndexedMapOfStructure : NCollection_IndexedMap<Graphic3d_CStructure>
     {
      
     }

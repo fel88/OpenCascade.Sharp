@@ -1,4 +1,5 @@
 ﻿using OCCPort.Common;
+using System;
 using System.Reflection.Metadata;
 using TKernel;
 
@@ -37,7 +38,7 @@ namespace TKXSBASE
 
             myGraph = graph;
 
-            if (myTP!=null) myTP.SetGraph(graph);
+            if (myTP != null) myTP.SetGraph(graph);
         }
 
         Interface_HGraph myGraph;
@@ -65,7 +66,7 @@ namespace TKXSBASE
             if ((mode & 1) != 0)
             {
                 myResults.Clear();
-                ///myShapeResult.Nullify();
+                //myShapeResult.Nullify();
             }
             if ((mode & 2) != 0)
             {
@@ -98,6 +99,11 @@ namespace TKXSBASE
             return 0;
         }
 
+        public bool Recognize(object start)
+        {
+            throw new NotImplementedException();
+        }
+
         //XSControl_Controller myController;
         string myFileName;
         Interface_InterfaceModel myModel;
@@ -105,7 +111,7 @@ namespace TKXSBASE
         NCollection_DataMap<string, object> myContext;
         //Transfer_ActorOfTransientProcess myActor;
         Transfer_TransientProcess myTP;
-        TColStd_DataMapOfIntegerTransient myResults;
+        TColStd_DataMapOfIntegerTransient myResults = new NCollection_DataMap<int, object, NCollection_DefaultHasher<int>>();
         //TopTools_HSequenceOfShape myShapeResult;
     }
 
@@ -165,5 +171,28 @@ namespace TKXSBASE
 
     public class Transfer_ActorOfProcessForTransient
     {
+    }
+
+    public class TColStd_HSequenceOfTransient : NCollection_Sequence<object>
+    {
+
+    }
+
+    //! This class only says for each Entity of a Model, if it is
+    //! Shared or not by one or more other(s) of this Model
+    //! It uses the General Service "Shared".
+    public class Interface_ShareFlags
+    {
+        TColStd_HSequenceOfTransient theroots;
+
+        public Interface_ShareFlags(Interface_Graph interface_Graph)
+        {
+        }
+
+        public object Root(int num)
+        { return theroots.Value(num); }
+
+        public int NbRoots()
+        { return (theroots == null ? 0 : theroots.Length()); }
     }
 }

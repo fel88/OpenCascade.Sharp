@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
+using TKernel;
 using TKMath;
 using TKOpenGl;
 using TKService;
@@ -66,14 +67,14 @@ namespace OCCPort.OpenGL
             if (aLayer.OriginTransformation() != null
               && myTrsfPers == null)
             {
-                aRenderTrsf.SetTranslationPart( 
-                    new gp_Vec (
+                aRenderTrsf.SetTranslationPart(
+                    new gp_Vec(
                     aRenderTrsf.TranslationPart() - aLayer.Origin()));
             }
             aRenderTrsf.GetMat4(myRenderTrsf);
         }
 
-        Graphic3d_Mat4 myRenderTrsf=new TKernel.NCollection_Mat4<float> (); //!< transformation, actually used for rendering (includes Local Origin shift)
+        Graphic3d_Mat4 myRenderTrsf = new TKernel.NCollection_Mat4<float>(); //!< transformation, actually used for rendering (includes Local Origin shift)
 
         public override Graphic3d_CStructure ShadowLink(Graphic3d_StructureManager theManager)
         {
@@ -149,11 +150,11 @@ namespace OCCPort.OpenGL
             if (visible == 0)
                 return;
 
-             OpenGl_Context aCtx = theWorkspace.GetGlContext();
+            OpenGl_Context aCtx = theWorkspace.GetGlContext();
 
             // Apply local transformation
             aCtx.ModelWorldState.Push();
-            OpenGl_Mat4  aModelWorld = aCtx.ModelWorldState.ChangeCurrent();
+            OpenGl_Mat4 aModelWorld = aCtx.ModelWorldState.ChangeCurrent();
             aModelWorld = myRenderTrsf;
 
             bool anOldGlNormalize = aCtx.IsGlNormalizeEnabled();
@@ -188,7 +189,7 @@ namespace OCCPort.OpenGL
             myIsRaytracable = !toCheck;
             if (!myIsRaytracable)
             {
-                for (OpenGl_Structure.GroupIterator anIter=new GroupIterator  (myGroups); anIter.More(); anIter.Next())
+                for (OpenGl_Structure.GroupIterator anIter = new GroupIterator(myGroups); anIter.More(); anIter.Next())
                 {
                     if (anIter.Value().IsRaytracable())
                     {
@@ -259,26 +260,30 @@ namespace OCCPort.OpenGL
             }
         }
 
-        internal class StructIterator
+        //! Auxiliary wrapper to iterate through structure list.       
+        public class SubclassStructIterator<T> where T : Graphic3d_CStructure
         {
-            public StructIterator(Graphic3d_IndexedMapOfStructure aStructures)
+            public SubclassStructIterator(NCollection_IndexedMap<Graphic3d_CStructure> theStructs)
+            {
+                myIter = new NCollection_IndexedMap<Graphic3d_CStructure, NCollection_DefaultHasher<Graphic3d_CStructure>>.Iterator(theStructs);
+            }
+
+            public T Value() { return ((T)myIter.Value()); }
+
+            public bool More() { return myIter.More(); }
+            public void Next() { myIter.Next(); }
+
+            NCollection_IndexedMap<Graphic3d_CStructure>.Iterator myIter;
+
+        }
+        //! Auxiliary wrapper to iterate OpenGl_Structure sequence.
+        internal class StructIterator : SubclassStructIterator<OpenGl_Structure>
+        {
+            public StructIterator(Graphic3d_IndexedMapOfStructure aStructures) : base(aStructures)
             {
             }
 
-            internal bool More()
-            {
-                throw new NotImplementedException();
-            }
 
-            internal object Next()
-            {
-                throw new NotImplementedException();
-            }
-
-            internal OpenGl_Structure Value()
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

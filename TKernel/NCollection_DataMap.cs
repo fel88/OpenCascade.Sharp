@@ -127,6 +127,19 @@ namespace TKernel
             return false;
         }
 
+        //! Find Item for key with copying.
+        //! @return true if key was found
+        public bool Find(T1 theKey,
+                       ref T2 theValue)
+        {
+            DataMapNode p = null;
+            if (!lookup(theKey, ref p))
+                return false;
+
+            theValue = p.Value();
+            return true;
+        }
+
         public T2 Find(T1 theKey)
         {
             DataMapNode p = null;
@@ -156,15 +169,6 @@ namespace TKernel
             return p.ChangeValue();
         }
 
-        public bool Find(T1 theKey, ref T2 theValue)
-        {
-            DataMapNode p = null;
-            if (!lookup(theKey, ref p))
-                return false;
-
-            theValue = p.Value();
-            return true;
-        }
 
         public NCollection_DataMap() : base(1, true)
         {
@@ -183,7 +187,7 @@ namespace TKernel
             return Extent();
         }
         //! ReSize
-       public  void ReSize(int N)
+        public void ReSize(int N)
         {
             NCollection_ListNode[] newdata = null;
             NCollection_ListNode[] dummy = null;

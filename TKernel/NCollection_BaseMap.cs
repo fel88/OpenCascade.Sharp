@@ -203,7 +203,7 @@ namespace TKernel
             N = NextPrimeForMap(NbBuckets);
             if (N <= myNbBuckets)
             {
-                if (myData1 != null)
+                if (myData1 == null)
                     N = myNbBuckets;
                 else
                     return false;

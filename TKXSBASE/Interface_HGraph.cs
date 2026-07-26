@@ -5,9 +5,14 @@
     //! Models, with the same general conditions)
     public class Interface_HGraph
     {
+       public  Interface_Graph  CGraph()
+      {  return thegraph;  }
         public Interface_Graph Graph()
         { return thegraph; }
         Interface_Graph thegraph;
 
+        public Interface_HGraph(Interface_InterfaceModel myModel, bool themodelstat)
+        {
+        }
     }
 }

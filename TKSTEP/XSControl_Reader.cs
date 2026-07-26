@@ -45,6 +45,15 @@ namespace TKSTEP
     public class XSControl_Reader
     {
 
+        public Interface_InterfaceModel Model()
+        {
+            return thesession.Model();
+        }
+
+        public XSControl_WorkSession WS() 
+        {
+  return thesession;
+}
         public XSControl_Reader()
         {
             SetWS(new XSControl_WorkSession());
@@ -94,17 +103,32 @@ namespace TKSTEP
         public TopoDS_Shape Shape(int num = 1)
         {
             return theshapes.Value(num);
-
         }
+
+        public virtual int NbRootsForTransfer()
+        {
+            if (therootsta) return theroots.Length();
+            therootsta = true;
+            Interface_ShareFlags sf = new(thesession.Graph());
+            int i, nbr = sf.NbRoots();
+            for (i = 1; i <= nbr; i++)
+            {
+                //    on filtre les racines qu on sait transferer
+                var start = sf.Root(i);
+                if (thesession.TransferReader().Recognize(start)) theroots.Append(start);
+            }
+            return theroots.Length();
+        }
+
 
         protected NCollection_Sequence<object> theroots = new NCollection_Sequence<object>();
 
         XSControl_WorkSession thesession;
-        TopTools_SequenceOfShape theshapes;
+        TopTools_SequenceOfShape theshapes = new TopTools_SequenceOfShape();
         public int TransferRoots(Message_ProgressRange theProgress = null)
         {
             if (theProgress == null) theProgress = new Message_ProgressRange();
-            //NbRootsForTransfer();
+            NbRootsForTransfer();
             int nbt = 0;
             int i, nb = theroots.Length();
             XSControl_TransferReader TR = thesession.TransferReader();
