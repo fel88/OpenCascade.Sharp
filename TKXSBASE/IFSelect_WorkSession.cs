@@ -69,6 +69,22 @@ namespace TKXSBASE
             return true;
         }
 
+        //! Returns the Model of the Work Session (Null Handle if none)
+        //! should be C++ : return const &
+        public  Interface_InterfaceModel Model() 
+        { return myModel; }
+
+        protected Interface_GTool thegtool;
+
+        //! Sets a Protocol, which will be used to determine Graphs, to
+        //! Read and to Write Files
+        public void SetProtocol(Interface_Protocol protocol)
+        {
+            theprotocol = protocol;
+            Interface_Protocol.SetActive(protocol);
+            thegtool.SetProtocol(protocol);
+        }
+
         public bool IsLoaded()
         {
             if (theprotocol == null) return false;

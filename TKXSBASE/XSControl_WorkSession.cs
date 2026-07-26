@@ -13,6 +13,63 @@ namespace TKXSBASE
     //! Each item is accessed by a Name
     public class XSControl_WorkSession : IFSelect_WorkSession
     {
+
+        public XSControl_WorkSession()
+        {
+            myTransferReader = new XSControl_TransferReader();
+            myTransferWriter = new XSControl_TransferWriter();
+            myVars = new XSControl_Vars();
+        }
+
+        public XSControl_WorkSession(XSControl_WorkSession xSControl_WorkSession)
+        {
+        }
+
+        XSControl_Vars myVars;
+
+        public bool SelectNorm(string normname)
+        {
+            // Old norm and results
+            myTransferReader.Clear(-1);
+            //  ????  En toute rigueur, menage a faire dans XWS : virer les items
+            //        ( a la limite, pourquoi pas, refaire XWS en entier)
+
+            XSControl_Controller newadapt = XSControl_Controller.Recorded(normname);
+            if (newadapt == null) return false;
+            if (newadapt == myController) return true;
+            SetController(newadapt);
+            return true;
+        }
+
+        //! Sets a WorkLibrary, which will be used to Read and Write Files
+        public void SetLibrary(IFSelect_WorkLibrary theLib)
+        { thelibrary = theLib; }
+
+        IFSelect_WorkLibrary thelibrary;
+
+
+        Interface_Protocol theprotocol;
+
+        public void SetController(XSControl_Controller ctl)
+        {
+            myController = ctl;
+
+            SetLibrary(myController.WorkLibrary());
+            SetProtocol(myController.Protocol());
+
+            /*ClearItems();
+            ClearFinalModifiers();
+            ClearShareOut(false);
+            ClearFile();*/
+
+            // Set worksession parameters from teh controller
+            XSControl_WorkSession aWorkSession = new XSControl_WorkSession(this);
+            //myController.Customise(aWorkSession);
+
+            myTransferReader.SetController(myController);
+            myTransferWriter.SetController(myController);
+        }
+
         public Interface_InterfaceModel NewModel()
         {
             Interface_InterfaceModel newmod = null;
@@ -66,19 +123,19 @@ namespace TKXSBASE
                 {
                     TP = new Transfer_TransientProcess();
                     //myTransferReader.SetTransientProcess(TP);
-                   // TP.SetGraph(HGraph());
+                    // TP.SetGraph(HGraph());
                 }
 
-               // TColStd_HSequenceOfTransient lis = myTransferReader.RecordedList();
-               // int i, nb = lis.Length();
-               // for (i = 1; i <= nb; i++) TP.SetRoot(lis.Value(i));
+                // TColStd_HSequenceOfTransient lis = myTransferReader.RecordedList();
+                // int i, nb = lis.Length();
+                // for (i = 1; i <= nb; i++) TP.SetRoot(lis.Value(i));
             }
             if (mode == 3)
             {
-            //    Handle(Transfer_TransientProcess) TP = myTransferReader->TransientProcess();
-            //    if (TP.IsNull()) return;
-            //    Standard_Integer i, nb = TP->NbRoots();
-            //    for (i = 1; i <= nb; i++) myTransferReader->RecordResult(TP->Root(i));
+                //    Handle(Transfer_TransientProcess) TP = myTransferReader->TransientProcess();
+                //    if (TP.IsNull()) return;
+                //    Standard_Integer i, nb = TP->NbRoots();
+                //    for (i = 1; i <= nb; i++) myTransferReader->RecordResult(TP->Root(i));
             }
             //if (mode == 4 || mode == 5) myTransferReader.BeginTransfer();
         }
@@ -92,11 +149,11 @@ namespace TKXSBASE
             TR.SetController(myController);
             //TR.SetGraph(HGraph());
             if (TR.TransientProcess() != null) return;
-           // Transfer_TransientProcess TP = new Transfer_TransientProcess
-           //   (Model().IsNull() ? 100 : Model()->NbEntities() + 100);
-           // TP.SetGraph(HGraph());
-           // TP.SetErrorHandle(true);
-           // TR.SetTransientProcess(TP);
+            // Transfer_TransientProcess TP = new Transfer_TransientProcess
+            //   (Model().IsNull() ? 100 : Model()->NbEntities() + 100);
+            // TP.SetGraph(HGraph());
+            // TP.SetErrorHandle(true);
+            // TR.SetTransientProcess(TP);
         }
 
 
@@ -106,9 +163,21 @@ namespace TKXSBASE
             return myTransferReader;
         }
 
-        public Interface_InterfaceModel Model()
-        {
-            throw new NotImplementedException();
-        }
+
+    }
+
+
+    //! Defines a receptacle for externally defined variables, each
+    //! one has a name
+    //!
+    //! I.E. a WorkSession for XSTEP is generally used inside a
+    //! context, which brings variables, especially shapes and
+    //! geometries. For instance DRAW or an application engine
+    //!
+    //! This class provides a common form for this. It also provides
+    //! a default implementation (locally recorded variables in a
+    //! dictionary), but which is aimed to be redefined
+    public class XSControl_Vars
+    {
     }
 }

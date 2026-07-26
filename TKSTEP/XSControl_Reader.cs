@@ -44,16 +44,29 @@ namespace TKSTEP
     //! - TransferRoots which restarts the list of shapes from scratch.
     public class XSControl_Reader
     {
+        public bool SetNorm(string norm)
+        {
+            if (thesession == null)
+                SetWS(new XSControl_WorkSession());
+
+            bool stat = thesession.SelectNorm(norm);
+            if (stat)
+            {
+                thesession.InitTransferReader(0);
+                thesession.InitTransferReader(4);
+            }
+            return stat;
+        }
 
         public Interface_InterfaceModel Model()
         {
             return thesession.Model();
         }
 
-        public XSControl_WorkSession WS() 
+        public XSControl_WorkSession WS()
         {
-  return thesession;
-}
+            return thesession;
+        }
         public XSControl_Reader()
         {
             SetWS(new XSControl_WorkSession());

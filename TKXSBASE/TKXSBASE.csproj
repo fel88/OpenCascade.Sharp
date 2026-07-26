@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TKernel\TKernel.csproj" />
+    <ProjectReference Include="..\TKShHealing\TKShHealing.csproj" />
   </ItemGroup>
 
 </Project>

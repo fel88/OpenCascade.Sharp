@@ -42,6 +42,11 @@ namespace TKSTEP
     public class STEPControl_Reader : XSControl_Reader
 
     {
+        public STEPControl_Reader()
+        {
+            STEPControl_Controller.Init();
+            SetNorm("STEP");
+        }
         public override int NbRootsForTransfer()
         {
             if (therootsta) return theroots.Length();
@@ -76,6 +81,6 @@ namespace TKSTEP
 
 
 
-    
+
 
 }

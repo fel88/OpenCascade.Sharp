@@ -99,9 +99,12 @@ namespace TKXSBASE
             return 0;
         }
 
-        public bool Recognize(object start)
+        //! Tells if an entity is recognized as a valid candidate for
+        //! Transfer. Calls method Recognize from the Actor (if known)
+        public bool Recognize(object theEnt)
         {
-            throw new NotImplementedException();
+            if (myActor == null) return false;
+            return myActor.Recognize(theEnt);
         }
 
         //XSControl_Controller myController;
@@ -129,25 +132,6 @@ namespace TKXSBASE
     }
 
 
-    //! TransferWriter gives help to control transfer to write a file
-    //! after having converted data from Cascade/Imagine
-    //!
-    //! It works with a Controller (which itself can work with an
-    //! Actor to Write) and a FinderProcess. It records results and
-    //! checks
-    public class XSControl_TransferWriter
-    {
-        Transfer_FinderProcess myTransferWriter;
-
-        public void Clear(int mode)
-        {
-            if (mode < 0 || myTransferWriter == null)
-                myTransferWriter = new Transfer_FinderProcess();
-            else myTransferWriter.Clear();
-        }
-    }
-
-
     //! Adds specific features to the generic definition :
     //! PrintTrace is adapted
     public class Transfer_FinderProcess : Transfer_ProcessForFinder
@@ -164,13 +148,26 @@ namespace TKXSBASE
 
 
     //! The original class was renamed. Compatibility only
-    public class Transfer_ActorOfTransientProcess : Transfer_ActorOfProcessForTransient
+    public abstract class Transfer_ActorOfTransientProcess : Transfer_ActorOfProcessForTransient
     {
     }
 
 
-    public class Transfer_ActorOfProcessForTransient
+    public abstract  class Transfer_ActorOfProcessForTransient
     {
+
+        //! Prerequesite for Transfer : the method Transfer is
+        //! called on a starting object only if Recognize has
+        //! returned True on it
+        //! This allows to define a list of Actors, each one
+        //! processing a definite kind of data
+        //! TransferProcess calls Recognize on each one before
+        //! calling Transfer. But even if Recognize has returned
+        //! True, Transfer can reject by returning a Null Binder
+        //! (afterwards rejection), the next actor is then invoked
+        //!
+        //! The provided default returns True, can be redefined
+        public  abstract  bool Recognize( object  start);
     }
 
     public class TColStd_HSequenceOfTransient : NCollection_Sequence<object>
@@ -178,21 +175,10 @@ namespace TKXSBASE
 
     }
 
-    //! This class only says for each Entity of a Model, if it is
-    //! Shared or not by one or more other(s) of this Model
-    //! It uses the General Service "Shared".
-    public class Interface_ShareFlags
-    {
-        TColStd_HSequenceOfTransient theroots;
 
-        public Interface_ShareFlags(Interface_Graph interface_Graph)
-        {
-        }
 
-        public object Root(int num)
-        { return theroots.Value(num); }
 
-        public int NbRoots()
-        { return (theroots == null ? 0 : theroots.Length()); }
-    }
+   
+
+
 }

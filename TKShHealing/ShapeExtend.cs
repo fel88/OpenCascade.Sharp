@@ -1,4 +1,5 @@
-﻿namespace TKShHealing
+﻿
+namespace TKShHealing
 {
     //! This package provides general tools and data structures common
     //! for other packages in SHAPEWORKS and extending CAS.CADE
@@ -49,6 +50,28 @@
                 case ShapeExtend_Status.ShapeExtend_FAIL: return 0xff00;
             }
             return 0;
+        }
+
+        static bool init = false;
+
+        internal static void Init()
+        {
+            if (init) return;
+
+            init = true;
+
+            // load Message File for Shape Healing
+            //if (!Message_MsgFile::HasMsg("ShapeFix.FixSmallSolid.MSG0"))
+            //{
+            //    if (!Message_MsgFile::LoadFromEnv("CSF_SHMessage", "SHAPE"))
+            //    {
+            //        Message_MsgFile::LoadFromString(SHMessage_SHAPE_us, sizeof(SHMessage_SHAPE_us) - 1);
+            //    }
+            //    if (!Message_MsgFile::HasMsg("ShapeFix.FixSmallSolid.MSG0"))
+            //    {
+            //        throw Standard_ProgramError("Critical Error - message resources for ShapeExtend are invalid or undefined!");
+            //    }
+            //}
         }
     }
 }

@@ -6,32 +6,24 @@ namespace TKSTEP
     //! defines basic controller for STEP processor
     public class STEPControl_Controller : XSControl_Controller
     {
-        public override  Interface_InterfaceModel NewModel()
+        static bool inic = false;
+        public static bool Init()
+        {
+            if (!inic)
+            {
+                STEPControl_Controller STEPCTL = new STEPControl_Controller();
+                STEPCTL.AutoRecord();  // avec les noms donnes a la construction
+                XSAlgo.Init();
+                inic = true;
+            }
+            return true;
+        }
+
+        public override Interface_InterfaceModel NewModel()
         {
             return STEPEdit.NewModel();
         }
 
-    }
-
-    //! This class allows to consult and prepare/edit  data stored in
-    //! a Step Model  Header
-    public class APIHeaderSection_MakeHeader
-    {
-        public StepData_StepModel NewModel(Interface_Protocol protocol)
-        {
-            StepData_StepModel stepmodel = new StepData_StepModel();
-            stepmodel.SetProtocol(protocol);
-
-            // - Make Header information
-
-            Apply(stepmodel);
-            return stepmodel;
-        }
-
-        private void Apply(StepData_StepModel stepmodel)
-        {
-            throw new NotImplementedException();
-        }
     }
 
 }

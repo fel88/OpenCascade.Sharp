@@ -37,4 +37,11 @@ namespace TKSTEPBase
     public class StepShape_Face : StepShape_TopologicalRepresentationItem
     { }
 
+    public class StepShape_ShapeRepresentation : StepRepr_Representation
+    {
+    }
+
+    public class StepShape_AdvancedBrepShapeRepresentation : StepShape_ShapeRepresentation
+    {
+    }
 }

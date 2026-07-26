@@ -1,5 +1,6 @@
 ﻿using OCCPort.Common;
 using System.Xml.Linq;
+using TKXSBASE;
 
 namespace TKXSBASE
 {
@@ -28,7 +29,57 @@ namespace TKXSBASE
     //! dictionary
     public class Interface_Static : Interface_TypedValue
     {
-
+        public static bool Init(string family, string name,
+       char type, string init)
+        {
+            Interface_ParamType epyt;
+            switch (type)
+            {
+                case 'e': epyt = Interface_ParamType.Interface_ParamEnum; break;
+                case 'i': epyt = Interface_ParamType.Interface_ParamInteger; break;
+                case 'o': epyt = Interface_ParamType.Interface_ParamIdent; break;
+                case 'p': epyt = Interface_ParamType.Interface_ParamText; break;
+                case 'r': epyt = Interface_ParamType.Interface_ParamReal; break;
+                case 't': epyt = Interface_ParamType.Interface_ParamText; break;
+                case '=': epyt = Interface_ParamType.Interface_ParamMisc; break;
+                case '&':
+                    {
+                        Interface_Static unstat = Interface_Static.Static(name);
+                        if (unstat==null) return false;
+                        //    Editions : init donne un petit texte d edition, en 2 termes "cmd var" :
+                        //  imin <ival>  imax <ival>  rmin <rval>  rmax <rval>  unit <def>
+                        //  enum <from>  ematch <from>  eval <cval>
+                        int i, iblc = 0;
+                        for (i = 0; init[i] != '\0'; i++) if (init[i] == ' ') iblc = i + 1;
+                        //  Reconnaissance du sous-cas et aiguillage
+                     /*   if (init[0] == 'i' && init[2] == 'i')
+                            unstat.SetIntegerLimit(false, int.Parse(init[iblc]));
+                        else if (init[0] == 'i' && init[2] == 'a')
+                            unstat.SetIntegerLimit(Standard_True, atoi(&init[iblc]));
+                        else if (init[0] == 'r' && init[2] == 'i')
+                            unstat.SetRealLimit(Standard_False, Atof(&init[iblc]));
+                        else if (init[0] == 'r' && init[2] == 'a')
+                            unstat.SetRealLimit(Standard_True, Atof(&init[iblc]));
+                        else if (init[0] == 'u')
+                            unstat.SetUnitDef(&init[iblc]);
+                        else if (init[0] == 'e' && init[1] == 'm')
+                            unstat.StartEnum(atoi(&init[iblc]), Standard_True);
+                        else if (init[0] == 'e' && init[1] == 'n')
+                            unstat.StartEnum(atoi(&init[iblc]), Standard_False);
+                        else if (init[0] == 'e' && init[1] == 'v')
+                            unstat.AddEnum(&init[iblc]);
+                        else return false;*/
+                        return true;
+                    }
+                default: return false;
+            }
+         //   if (!Interface_Static.Init(family, name, epyt, init)) return false;
+            if (type != 'p') return true;
+            Interface_Static stat = Interface_Static.Static(name);
+            //NT  stat->SetSatisfies (StaticPath,"Path");
+           // if (!stat->Satisfies(stat->HStringValue())) stat->SetCStringValue("");
+            return true;
+        }
         //! Returns the integer value of
         //! the translation parameter identified by the string name.
         //! Returns the value 0 if the parameter does not exist.
@@ -51,6 +102,26 @@ namespace TKXSBASE
             return (Interface_Static)(result);
         }
 
-
+        internal static void Standards()
+        {
+            throw new NotImplementedException();
+        }
     }
+
+
+
+   public  enum Interface_ParamType
+    {
+        Interface_ParamMisc,
+        Interface_ParamInteger,
+        Interface_ParamReal,
+        Interface_ParamIdent,
+        Interface_ParamVoid,
+        Interface_ParamText,
+        Interface_ParamEnum,
+        Interface_ParamLogical,
+        Interface_ParamSub,
+        Interface_ParamHexa,
+        Interface_ParamBinary
+    };
 }

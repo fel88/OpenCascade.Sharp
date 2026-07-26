@@ -1,5 +1,8 @@
-﻿using OCCPort;
+﻿global using ShapeProcess_OperFunc = System.Func<TKShHealing.ShapeProcess_Context, TKernel.Message_ProgressRange, bool>;
+using OCCPort;
+using System.Reflection.Metadata;
 using TKBRep;
+using TKernel;
 using TKG2d;
 using TKG3d;
 using TKMath;
@@ -106,4 +109,148 @@ namespace TKShHealing
             return V;
         }
     }
+
+
+    //! Provides a set of following operators
+    //!
+    //! DirectFaces
+    //! FixShape
+    //! SameParameter
+    //! SetTolerance
+    //! SplitAngle
+    //! BSplineRestriction
+    //! ElementaryToRevolution
+    //! SurfaceToBSpline
+    //! ToBezier
+    //! SplitContinuity
+    //! SplitClosedFaces
+    //! FixWireGaps
+    //! FixFaceSize
+    //! DropSmallEdges
+    //! FixShape
+    //! SplitClosedEdges
+    public class ShapeProcess_OperLibrary
+    {
+
+        static bool directfaces(ShapeProcess_Context context,
+                                      Message_ProgressRange _)
+        {
+            ShapeProcess_ShapeContext ctx = (ShapeProcess_ShapeContext)(context);
+            if (ctx == null) return false;
+
+            // activate message mechanism if it is supported by context
+            //ShapeExtend_MsgRegistrator msg = null;
+            //  if (!ctx->Messages().IsNull()) msg = new ShapeExtend_MsgRegistrator();
+
+            //  ShapeCustom_DirectModification DM = new ShapeCustom_DirectModification();
+            //  DM.SetMsgRegistrator(msg);
+            ////  TopTools_DataMapOfShapeShape map;
+            //TopoDS_Shape res = ShapeProcess_OperLibrary.ApplyModifier(ctx->Result(), ctx, DM, map, msg, Standard_True);
+            //   ctx.RecordModification(map, msg);
+            //   ctx.SetResult(res);
+            return true;
+        }
+
+        static bool done = false;
+
+        public static void Init()
+        {
+            if (done) return;
+            done = true;
+
+            ShapeExtend.Init();
+
+            ShapeProcess.RegisterOperator("DirectFaces", new ShapeProcess_UOperator(directfaces));
+            //ShapeProcess.RegisterOperator("SameParameter", new ShapeProcess_UOperator(sameparam));
+            //ShapeProcess.RegisterOperator("SetTolerance", new ShapeProcess_UOperator(settol));
+            //ShapeProcess.RegisterOperator("SplitAngle", new ShapeProcess_UOperator(splitangle));
+            //ShapeProcess.RegisterOperator("BSplineRestriction", new ShapeProcess_UOperator(bsplinerestriction));
+            //ShapeProcess.RegisterOperator("ElementaryToRevolution", new ShapeProcess_UOperator(torevol));
+            //ShapeProcess.RegisterOperator("SweptToElementary", new ShapeProcess_UOperator(swepttoelem));
+            //ShapeProcess.RegisterOperator("SurfaceToBSpline", new ShapeProcess_UOperator(converttobspline));
+            //ShapeProcess.RegisterOperator("ToBezier", new ShapeProcess_UOperator(shapetobezier));
+            //ShapeProcess.RegisterOperator("SplitContinuity", new ShapeProcess_UOperator(splitcontinuity));
+            //ShapeProcess.RegisterOperator("SplitClosedFaces", new ShapeProcess_UOperator(splitclosedfaces));
+            //ShapeProcess.RegisterOperator("FixWireGaps", new ShapeProcess_UOperator(fixwgaps));
+            //ShapeProcess.RegisterOperator("FixFaceSize", new ShapeProcess_UOperator(fixfacesize));
+            //ShapeProcess.RegisterOperator("DropSmallSolids", new ShapeProcess_UOperator(dropsmallsolids));
+            //ShapeProcess.RegisterOperator("DropSmallEdges", new ShapeProcess_UOperator(mergesmalledges));
+            //ShapeProcess.RegisterOperator("FixShape", new ShapeProcess_UOperator(fixshape));
+            //ShapeProcess.RegisterOperator("SplitClosedEdges", new ShapeProcess_UOperator(spltclosededges));
+            //ShapeProcess.RegisterOperator("SplitCommonVertex", new ShapeProcess_UOperator(splitcommonvertex));
+        }
+
+    }
+
+
+    //! Shape Processing module
+    //! allows to define and apply general Shape Processing as a
+    //! customizable sequence of Shape Healing operators. The
+    //! customization is implemented via user-editable resource
+    //! file which defines sequence of operators to be executed
+    //! and their parameters.
+    public class ShapeProcess
+    {
+        static NCollection_DataMap<string, ShapeProcess_Operator> aMapOfOperators = new NCollection_DataMap<string, ShapeProcess_Operator>();
+        public static bool RegisterOperator(string name,
+                                                     ShapeProcess_Operator op)
+        {
+            if (aMapOfOperators.IsBound(name))
+            {
+
+                return false;
+            }
+            aMapOfOperators.Bind(name, op);
+            return true;
+        }
+    }
+
+
+    //! Abstract Operator class providing a tool to
+    //! perform an operation on Context
+    public class ShapeProcess_Operator
+    {
+    }
+
+
+    //! Defines operator as container for static function
+    //! OperFunc. This allows user to create new operators
+    //! without creation of new classes
+    public class ShapeProcess_UOperator : ShapeProcess_Operator
+    {
+        //! Creates operator with implementation defined as
+        //! OperFunc (static function)
+        public ShapeProcess_UOperator(ShapeProcess_OperFunc func)
+        {
+            myFunc = (func);
+        }
+        ShapeProcess_OperFunc myFunc;
+    }
+
+
+
+
+    //! Provides convenient interface to resource file
+    //! Allows to load resource file and get values of
+    //! attributes starting from some scope, for example
+    //! if scope is defined as "ToV4" and requested parameter
+    //! is "exec.op", value of "ToV4.exec.op" parameter from
+    //! the resource file will be returned
+    public class ShapeProcess_Context
+    {
+    }
+
+
+    //! Extends Context to handle shapes
+    //! Contains map of shape-shape, and messages
+    //! attached to shapes
+    public class ShapeProcess_ShapeContext : ShapeProcess_Context
+    {
+    }
+
+
+ public    class ShapeAlgo_AlgoContainer 
+{
+        }
 }
+
