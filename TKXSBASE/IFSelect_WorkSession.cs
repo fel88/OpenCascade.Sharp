@@ -22,6 +22,19 @@ namespace TKXSBASE
     //! Identifier is attached. A Name can be attached too as desired.
     public class IFSelect_WorkSession
     {
+
+        public IFSelect_WorkSession()
+        {
+            // theshareout = new IFSelect_ShareOut;
+            theerrhand = errhand = true;
+            //  thecopier = new IFSelect_ModelCopier;
+            //thecopier->SetShareOut(theshareout);
+            thecheckdone = false;
+            thegtool = new Interface_GTool();
+            themodelstat = false;
+        }
+        static bool errhand;  // pb : un seul a la fois, mais ca va si vite
+
         protected Interface_HGraph thegraph;
 
         //! Computes the Graph used for Selections, Displays ...
@@ -39,8 +52,8 @@ namespace TKXSBASE
             if (enforce) thegraph = null;
             if (thegraph != null)
             {
-             //   if (myModel.NbEntities() == thegraph.Graph().Size()) return true;
-              //  thegraph = null;
+                //   if (myModel.NbEntities() == thegraph.Graph().Size()) return true;
+                //  thegraph = null;
             }
             if (myModel.NbEntities() == 0) return false;
             //  Il faut calculer le graphe pour de bon
@@ -51,8 +64,8 @@ namespace TKXSBASE
                 int i; // svv #1
                 for (i = 1; i <= nb; i++) thegraph.CGraph().SetStatus(i, 0);
                 //Interface_BitMap bm = thegraph.CGraph().CBitMap();
-               // bm.AddFlag();
-               // bm.SetFlagName(Flag_Incorrect, "Incorrect");
+                // bm.AddFlag();
+                // bm.SetFlagName(Flag_Incorrect, "Incorrect");
             }
             ComputeCheck();
             thecheckdone = true;
@@ -60,10 +73,10 @@ namespace TKXSBASE
             {
                 //  Calcul des categories, a present memorisees dans le modele
                 //Interface_Category categ = new(thegtool);
-             //   Interface_ShareTool sht = new(thegraph);
-              //  int i = 1;
-              //  for (; i <= nb; i++)
-              //      myModel.SetCategoryNumber(i, categ.CatNum(myModel.Value(i), sht));
+                //   Interface_ShareTool sht = new(thegraph);
+                //  int i = 1;
+                //  for (; i <= nb; i++)
+                //      myModel.SetCategoryNumber(i, categ.CatNum(myModel.Value(i), sht));
             }
 
             return true;
@@ -71,7 +84,7 @@ namespace TKXSBASE
 
         //! Returns the Model of the Work Session (Null Handle if none)
         //! should be C++ : return const &
-        public  Interface_InterfaceModel Model() 
+        public Interface_InterfaceModel Model()
         { return myModel; }
 
         protected Interface_GTool thegtool;
@@ -116,18 +129,18 @@ namespace TKXSBASE
             if (themodelstat)
             {
                 //  Et on met a jour le Graphe (BitMap) !  Flag Incorrect (STX + SEM)
-             /*   Interface_BitMap BM = CG.CBitMap();
-                BM.Init(false, Flag_Incorrect);
-                int num, nb = CG.Size();
-                for (checklist.Start(); checklist.More(); checklist.Next())
-                {
-                    Interface_Check chk = checklist.Value();
-                    if (!chk.HasFailed()) continue;
-                    num = checklist.Number();
-                    if (num > 0 && num <= nb) BM.SetTrue(num, Flag_Incorrect);
-                }*/
+                /*   Interface_BitMap BM = CG.CBitMap();
+                   BM.Init(false, Flag_Incorrect);
+                   int num, nb = CG.Size();
+                   for (checklist.Start(); checklist.More(); checklist.Next())
+                   {
+                       Interface_Check chk = checklist.Value();
+                       if (!chk.HasFailed()) continue;
+                       num = checklist.Number();
+                       if (num > 0 && num <= nb) BM.SetTrue(num, Flag_Incorrect);
+                   }*/
                 //for (num = 1; num <= nb; num++)
-                    //if (myModel.IsErrorEntity(num)) BM.SetTrue(num, Flag_Incorrect);
+                //if (myModel.IsErrorEntity(num)) BM.SetTrue(num, Flag_Incorrect);
             }
             return true;
         }
@@ -161,7 +174,7 @@ namespace TKXSBASE
             //  if (thegtool != null)
             //     thegtool.ClearEntities(); //smh#14 FRA62479
 
-            //    myModel.SetGTool(thegtool);
+            myModel.SetGTool(thegtool);
 
             //   thegraph.Nullify();
             //  ComputeGraph();    // fait qqchose si Protocol present. Sinon, ne fait rien
@@ -247,6 +260,9 @@ namespace TKXSBASE
                 default: break;
             }
         }
+        //! Sets a WorkLibrary, which will be used to Read and Write Files
+        public void SetLibrary(IFSelect_WorkLibrary theLib)
+        { thelibrary = theLib; }
 
         bool theerrhand;
         //IFSelect_ShareOut theshareout;
@@ -279,7 +295,7 @@ namespace TKXSBASE
             try
             {
                 //OCC_CATCH_SIGNALS
-                int stat = thelibrary.ReadFile(filename, out model, theprotocol);
+                int stat = thelibrary.ReadFile(filename, ref model, theprotocol);
                 if (stat == 0) status = IFSelect_ReturnStatus.IFSelect_RetDone;
                 else if (stat < 0) status = IFSelect_ReturnStatus.IFSelect_RetError;
                 else status = IFSelect_ReturnStatus.IFSelect_RetFail;
@@ -349,6 +365,45 @@ namespace TKXSBASE
     //! SelectBase works directly from an InterfaceModel : it is the
     //! first base for other Selections.
     public class IFSelect_SelectBase : IFSelect_Selection
+    {
+    }
+
+
+    //! A SelectExplore determines from an input list of Entities,
+    //! a list obtained by a way of exploration. This implies the
+    //! possibility of recursive exploration : the output list is
+    //! itself reused as input, etc...
+    //! Examples : Shared Entities, can be considered at one level
+    //! (immediate shared) or more, or max level
+    //!
+    //! Then, for each input entity, if it is not rejected, it can be
+    //! either taken itself, or explored : it then produces a list.
+    //! According to a level, either the produced lists or taken
+    //! entities give the result (level one), or lists are themselves
+    //! considered and for each item, is it taken or explored.
+    //!
+    //! Remark that rejection is just a safety : normally, an input
+    //! entity is, either taken itself, or explored
+    //! A maximum level can be specified. Else, the process continues
+    //! until all entities have been either taken or rejected
+    public class IFSelect_SelectExplore : IFSelect_SelectDeduct
+    {
+    }
+
+
+    //! A SelectDeduct determines a list of Entities from an Input
+    //! Selection, by a computation : Output list is not obliged to be
+    //! a sub-list of Input list
+    //! (for more specific, see SelectExtract for filtered sub-lists,
+    //! and SelectExplore for recurcive exploration)
+    //!
+    //! A SelectDeduct may use an alternate input for one shot
+    //! This allows to use an already existing definition, by
+    //! overloading the input selection by an alternate list,
+    //! already defined, for one use :
+    //! If this alternate list is set, InputResult queries it instead
+    //! of calling the input selection, then clears it immediately
+    public class IFSelect_SelectDeduct : IFSelect_Selection
     {
     }
 }

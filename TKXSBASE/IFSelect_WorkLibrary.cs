@@ -1,4 +1,9 @@
-﻿namespace TKXSBASE
+﻿using OCCPort.Common;
+using System.Reflection.Emit;
+using System.Reflection.Metadata;
+using TKernel;
+
+namespace TKXSBASE
 {
     //! This class defines the (empty) frame which can be used to
     //! enrich a XSTEP set with new capabilities
@@ -13,7 +18,23 @@
     //! kind of information relevant for the norm,
     public abstract class IFSelect_WorkLibrary
     {
+        public void SetDumpHelp(int level, string help)
+        {
+            if (thelevhlp == null) return;
+            if (level < 0 || level > thelevhlp.Upper()) return;
+            string str = (help);
+            thelevhlp.SetValue(level, str);
+        }
 
+        public  void SetDumpLevels(int def, int max)
+        {
+            thelevdef = def;
+            thelevhlp = null;
+            if (max >= 0) thelevhlp = new NCollection_Array1<string>(0, max);
+        }
+
+        int thelevdef;
+        NCollection_Array1<string> thelevhlp = null;
         //! Gives the way to Read a File and transfer it to a Model
         //! <mod> is the resulting Model, which has to be created by this
         //! method. In case of error, <mod> must be returned Null
@@ -21,7 +42,7 @@
         //! Simply, 0 is for "Execution OK"
         //! The Protocol can be used to work (e.g. create the Model, read
         //! and recognize the Entities)
-        public abstract int ReadFile(string name, out Interface_InterfaceModel model, Interface_Protocol protocol);
+        public abstract int ReadFile(string name, ref Interface_InterfaceModel model, Interface_Protocol protocol);
 
     }
 }

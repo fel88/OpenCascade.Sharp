@@ -41,14 +41,10 @@ namespace TKXSBASE
             return true;
         }
 
-        //! Sets a WorkLibrary, which will be used to Read and Write Files
-        public void SetLibrary(IFSelect_WorkLibrary theLib)
-        { thelibrary = theLib; }
+        
 
-        IFSelect_WorkLibrary thelibrary;
-
-
-        Interface_Protocol theprotocol;
+        
+        
 
         public void SetController(XSControl_Controller ctl)
         {

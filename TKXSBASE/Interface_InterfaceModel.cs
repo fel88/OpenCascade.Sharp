@@ -184,6 +184,12 @@ namespace TKXSBASE
             ClearLabels();
             thecategory = null;
         }
+
+        public void SetGTool(Interface_GTool gtool)
+        {
+            thegtool = gtool;
+
+        }
     }
 
 

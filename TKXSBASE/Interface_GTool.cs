@@ -20,6 +20,8 @@ namespace TKXSBASE
             thelib.AddProtocol(proto);
         }
 
+        public Interface_GTool()    {  }
+
         //! Creates a GTool from a Protocol
         //! Optional starting count of entities
         public Interface_GTool(Interface_Protocol proto, int nb = 0)
@@ -34,7 +36,7 @@ namespace TKXSBASE
                 }
             }
         }
-        Interface_GeneralLib thelib;
+        Interface_GeneralLib thelib = new Interface_GeneralLib();
 
 
 
@@ -60,15 +62,20 @@ namespace TKXSBASE
         {
 
         }
+        //! Creates an empty Library : it will later by filled by method
+        //! AddProtocol
+        public Interface_GeneralLib()
+        {
 
+        }
         internal void AddProtocol(Interface_Protocol proto)
         {
-            throw new NotImplementedException();
+            
         }
 
         internal void Clear()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

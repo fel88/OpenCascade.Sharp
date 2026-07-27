@@ -23,18 +23,62 @@ namespace TKXSBASE
     public abstract class XSControl_Controller
     {
 
+        public XSControl_Controller(string theLongName, string theShortName)
+        {
+            myShortName = (theShortName);
+            myLongName = (theLongName);
+
+            // Standard parameters
+            Interface_Static.Standards();
+            TraceStatic("read.precision.mode", 5);
+            TraceStatic("read.precision.val", 5);
+            TraceStatic("write.precision.mode", 6);
+            TraceStatic("write.precision.val", 6);
+        }
+
+        //! Records a Session Item, to be added for customisation of the Work Session.
+        //! It must have a specific name.
+        //! <setapplied> is used if <item> is a GeneralModifier, to decide
+        //! If set to true, <item> will be applied to the hook list "send".
+        //! Else, it is not applied to any hook list.
+        //! Remark : this method is to be called at Create time,
+        //! the recorded items will be used by Customise
+        //! Warning : if <name> conflicts, the last recorded item is kept
+        public void AddSessionItem(object theItem, string theName, bool toApply = false)
+        {
+            if (theItem == null || theName[0] == '\0') return;
+            myAdaptorSession.Bind(theName, theItem);
+            if (toApply && theItem is IFSelect_GeneralModifier)
+                myAdaptorApplied.Append(theItem);
+        }
+
+        NCollection_DataMap<string, object> myAdaptorSession = new NCollection_DataMap<string, object>();
+        NCollection_Sequence<object> myAdaptorApplied = new NCollection_Sequence<object>();
+
+        NCollection_Vector<object> myParams = new NCollection_Vector<object>();
+        NCollection_Vector<int> myParamUses = new NCollection_Vector<int>();
+
+        public void TraceStatic(string theName, int theUse)
+        {
+            Interface_Static val = Interface_Static.Static(theName);
+            if (val == null) return;
+            myParams.Append(val);
+            myParamUses.Append(theUse);
+        }
+
         //! Returns the WorkLibrary attached to the Norm. Remark that it
         //! has to be in phase with the Protocol  (read from field)
-        public  IFSelect_WorkLibrary WorkLibrary() 
+        public IFSelect_WorkLibrary WorkLibrary()
         { return myAdaptorLibrary; }
 
-        Interface_Protocol myAdaptorProtocol;
+     protected   Interface_Protocol myAdaptorProtocol;
 
         //! Returns the Protocol attached to the Norm (from field)
-        public  Interface_Protocol Protocol() 
+        public Interface_Protocol Protocol()
         { return myAdaptorProtocol; }
-  
-        IFSelect_WorkLibrary myAdaptorLibrary;
+
+      protected  IFSelect_WorkLibrary myAdaptorLibrary;
+        
 
         //! Returns a name, as given when initializing :
         //! rsc = False (D) : True Name attached to the Norm (long name)

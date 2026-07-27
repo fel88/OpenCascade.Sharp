@@ -82,5 +82,9 @@ namespace TKSTEP
 
 
 
+    //! This selection returns "STEP faces"
+    public class STEPSelections_SelectFaces : IFSelect_SelectExplore
+    {
+    }
 
 }
