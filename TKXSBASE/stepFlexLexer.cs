@@ -1,6 +1,6 @@
 ﻿namespace TKXSBASE
 {
-    public class stepFlexLexer
+    public class stepFlexLexer: yyFlexLexer
     {
     }
 }

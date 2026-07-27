@@ -6,7 +6,16 @@
 	 * characters.
 	 */
         public int yy_n_chars;
+        /* Whether we "own" the buffer - i.e., we know we created it,
+	 * and can realloc() it to grow it, and should free() it to
+	 * delete it.
+	 */
+        public int yy_is_our_buffer;
 
+        /* Size of input buffer in bytes, not including room for EOB
+         * characters.
+         */
+        public int yy_buf_size;
 
         public int yy_bs_lineno; /**< The line count. */
         public int yy_bs_column; /**< The column count. */

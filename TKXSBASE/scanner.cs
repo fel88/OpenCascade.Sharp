@@ -15,9 +15,6 @@ namespace TKXSBASE
         }
         public StepFile_ReadData myDataModel;
 
-        internal void yyrestart(Stream aStreamPtr)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }
