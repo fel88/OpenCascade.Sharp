@@ -414,14 +414,170 @@ namespace TKMesh
                 {
                     if (isNeedToCheck)
                     {
+                        aIdx[1] = getIntervalIdx(U2, Intervs, aIdx[0]);
+                        if (aIdx[1] > aIdx[0]) // Jump to another polynom.
+                        {
+                            // Set Du to the smallest value and check deflection on it.
+                            if (Du > (Intervs[(aIdx[0] + 1)] - Intervs[(aIdx[0])]) * Us3)
+                            {
+                                Du = (Intervs[(aIdx[0] + 1)] - Intervs[(aIdx[0])]) * Us3;
+                                U2 = U1 + Du;
+                                if (U2 > myLastU)
+                                {
+                                    U2 = myLastU;
+                                }
+                                D0(theC, U2, ref CurrentPoint);
+                            }
+                        }
                     }
+
+
+                    MiddleU = (U1 + U2) * 0.5;                 // Verif / au point milieu
+                    D0(theC, MiddleU, ref MiddlePoint);
+
+                    V1 = (CurrentPoint.XYZ() - aPrevPoint.XYZ()); // Critere de fleche
+                    V2 = (MiddlePoint.XYZ() - aPrevPoint.XYZ());
+                    L1 = V1.Modulus();
+
+                    FCoef = (L1 > myMinLen) ? V1.CrossMagnitude(V2) / (L1 * myCurvatureDeflection) : 0.0;
+
+                    V1 = (CurrentPoint.XYZ() - MiddlePoint.XYZ()); // Critere d'angle
+                    L1 = V1.Modulus();
+                    L2 = V2.Modulus();
+                    if (L1 > myMinLen && L2 > myMinLen)
+                    {
+                        double angg = V1.CrossMagnitude(V2) / (L1 * L2);
+                        ACoef = angg / AngleMax;
+                    }
+                    else
+                    {
+                        ACoef = 0.0;
+                    }
+
+
+                    // On retient le plus penalisant
+                    Coef = Math.Max(ACoef, FCoef);
+
+                    if (isNeedToCheck && Coef < 0.55)
+                    {
+                        isNeedToCheck = false;
+                        Du = Dusave;
+                        U2 = U1 + Du;
+                        if (U2 > myLastU)
+                        {
+                            U2 = myLastU;
+                        }
+                        D0(theC, U2, ref CurrentPoint);
+                        continue;
+                    }
+
+                    if (Coef <= 1.0)
+                    {
+                        if (Math.Abs(myLastU - U2) < myUTol)
+                        {
+                            myParameters.Append(myLastU);
+                            myPoints.Append(LastPoint);
+                            MorePoints = false;
+                            Correction = false;
+                        }
+                        else
+                        {
+                            if (Coef >= 0.55 || TooLarge)
+                            {
+                                myParameters.Append(U2);
+                                myPoints.Append(CurrentPoint);
+                                aPrevPoint = CurrentPoint;
+                                Correction = false;
+                                isNeedToCheck = true;
+                            }
+                            else if (TooSmall)
+                            {
+                                Correction = false;
+                                aPrevPoint = CurrentPoint;
+                            }
+                            else
+                            {
+                                TooSmall = true;
+                                //Standard_Real UUU2 = U2;
+                                Du += Math.Min((U2 - U1) * (1.0- Coef), Du * Us3);
+
+                                U2 = U1 + Du;
+                                if (U2 > myLastU)
+                                {
+                                    U2 = myLastU;
+                                }
+                                D0(theC, U2, ref CurrentPoint);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (Coef >= 1.5)
+                        {
+                            if (!aPrevPoint.IsEqual(myPoints.Last(), Precision.Confusion()))
+                            {
+                                myParameters.Append(U1);
+                                myPoints.Append(aPrevPoint);
+                            }
+                            U2 = MiddleU;
+                            Du = U2 - U1;
+                            CurrentPoint = MiddlePoint;
+                        }
+                        else
+                        {
+                            Du *= 0.9;
+                            U2 = U1 + Du;
+                            D0(theC, U2,ref CurrentPoint);
+                            TooLarge = true;
+                        }
+                    }
+
                 }
+
+
                 Du = U2 - U1;
                 if (MorePoints)
                 {
-                }
-                /* more code */
+                    if (U1 > myFirstu)
+                    {
+                        if (FCoef > ACoef)
+                        {
+                            // La fleche est critere de decoupage
+                            EvaluateDu(theC, U2, out CurrentPoint, Du, NotDone);
+                            if (NotDone)
+                            {
+                                Du += (Du - Dusave) * (Du / Dusave);
+                                if (Du > 1.5 * Dusave) Du = 1.5 * Dusave;
+                                if (Du < 0.75 * Dusave) Du = 0.75 * Dusave;
+                            }
+                        }
+                        else
+                        {
+                            //L'angle est le critere de decoupage
+                            Du += (Du - Dusave) * (Du / Dusave);
+                            if (Du > 1.5 * Dusave) Du = 1.5 * Dusave;
+                            if (Du < 0.75 * Dusave) Du = 0.75 * Dusave;
+                        }
+                    }
 
+                    if (Du < myUTol)
+                    {
+                        Du = myLastU - U2;
+                        if (Du < myUTol)
+                        {
+                            myParameters.Append(myLastU);
+                            myPoints.Append(LastPoint);
+                            MorePoints = false;
+                        }
+                        else if (Du * Us3 > myUTol)
+                        {
+                            Du *= Us3;
+                        }
+                    }
+                    U1 = U2;
+                    Dusave = Du;
+                }
+                
             }
 
             // Recalage avant dernier point :

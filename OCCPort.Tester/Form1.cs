@@ -797,7 +797,7 @@ namespace OCCPort.Tester
             int q = qty * 2;
             for (int i = 0; i < q; i++)
             {
-                var ang = -i * 360.0 / q;
+                var ang = i * 360.0 / q;
                 var radians = ang * Math.PI / 180.0;
                 var rad = rad1;
                 if (i % 2 == 0)

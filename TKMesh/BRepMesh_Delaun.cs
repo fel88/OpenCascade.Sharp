@@ -598,14 +598,14 @@ namespace TKMesh
           MapOfInteger theSurvivedLinks,
           MapOfIntegerInteger theLoopEdges)
         {
-            //ListOfInteger::Iterator aNeighborsIt =
-            //              myMeshData->LinksConnectedTo(theZombieNodeId);
+            ListOfInteger.Iterator aNeighborsIt =new NCollection_List<int>.Iterator(
+                          myMeshData.LinksConnectedTo(theZombieNodeId));
 
             // Try to infect neighbor nodes
             VectorOfInteger aVictimNodes = new VectorOfInteger();
-            foreach (var aNeighborsIt in myMeshData.LinksConnectedTo(theZombieNodeId))
+            for (; aNeighborsIt.More(); aNeighborsIt.Next())
             {
-                int aNeighborLinkId = aNeighborsIt;
+                int aNeighborLinkId = aNeighborsIt.Value();
                 if (theSurvivedLinks.Contains(aNeighborLinkId))
                     continue;
 

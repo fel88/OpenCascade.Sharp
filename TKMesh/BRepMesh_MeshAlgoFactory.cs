@@ -9,6 +9,16 @@ namespace TKMesh
     //! of different complexity depending on type of target surface.
     public class BRepMesh_MeshAlgoFactory : IMeshTools_MeshAlgoFactory
     {
+        class DeflectionControlMeshAlgo<T> : BRepMesh_DelaunayDeflectionControlMeshAlgo<T> where T : AbstractRangeSplitter, new()//<RangeSplitter, BaseAlgo>
+        {
+
+        }
+
+        class NodeInsertionMeshAlgo<T> : BRepMesh_DelaunayNodeInsertionMeshAlgo<T> where T : AbstractRangeSplitter, new()//<RangeSplitter, BaseAlgo>
+        {
+            
+        }
+
         public IMeshTools_MeshAlgo GetAlgo(GeomAbs_SurfaceType theSurfaceType, ref IMeshTools_Parameters theParameters)
         {
             var algo1 = new BRepMesh_DelaunayNodeInsertionMeshAlgo<BRepMesh_DefaultRangeSplitter>();
@@ -22,6 +32,11 @@ namespace TKMesh
     typedef BRepMesh_DelaunayDeflectionControlMeshAlgo<RangeSplitter, BRepMesh_DelaunayBaseMeshAlgo> Type;
   };
                  */
+                case GeomAbs_SurfaceType. GeomAbs_Sphere:
+                    return theParameters.EnableControlSurfaceDeflectionAllSurfaces ?
+                      new DeflectionControlMeshAlgo<BRepMesh_SphereRangeSplitter>() :
+                      new NodeInsertionMeshAlgo<BRepMesh_SphereRangeSplitter>();
+                    break;
                 case GeomAbs_SurfaceType.GeomAbs_Plane:
                     return theParameters.EnableControlSurfaceDeflectionAllSurfaces ?
                         algo3 : theParameters.InternalVerticesMode ?

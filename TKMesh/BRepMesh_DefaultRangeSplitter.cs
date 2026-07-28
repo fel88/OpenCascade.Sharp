@@ -13,7 +13,11 @@ namespace TKMesh
         {
             myIsValid = true;
         }
-
+        //! Returns face model.
+        public  IFaceHandle GetDFace() 
+        {
+    return myDFace;
+  }
         (double, double) myRangeU;
         (double, double) myRangeV;
         (double, double) myDelta;

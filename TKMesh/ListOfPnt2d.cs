@@ -1,17 +1,11 @@
-﻿using TKMath;
+﻿using TKernel;
+using TKMath;
 
 namespace TKMesh
 {
-    public class ListOfPnt2d : List<gp_Pnt2d>
+    public class ListOfPnt2d : NCollection_List<gp_Pnt2d> 
     {
-        public bool IsEmpty()
-        {
-            return Count == 0;
-        }
-        public int Size()
-        {
-            return Count;
-        }
+        
 
     }
 }

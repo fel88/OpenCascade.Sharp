@@ -114,22 +114,22 @@ namespace TKG3d
 
         public override bool IsUClosed()
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public override bool IsUPeriodic()
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public override bool IsVClosed()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public override bool IsVPeriodic()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public override void Transform(gp_Trsf t)
