@@ -40,18 +40,28 @@ namespace TKMesh
 
         }
 
+
+        //! Default flag to control parallelization for BRepMesh_IncrementalMesh
+        //! tool returned for Mesh Factory
+        static bool IS_IN_PARALLEL = false;
+
         public static int Discret(TopoDS_Shape theShape,
             double theDeflection,
             double theAngle,
             ref BRepMesh_DiscretRoot theAlgo)
         {
             BRepMesh_IncrementalMesh anAlgo = new BRepMesh_IncrementalMesh();
-            /*anAlgo.ChangeParameters().Deflection = theDeflection;
+            anAlgo.ChangeParameters().Deflection = theDeflection;
 			anAlgo.ChangeParameters().Angle = theAngle;
-			anAlgo.ChangeParameters().InParallel = IS_IN_PARALLEL;*/
+			anAlgo.ChangeParameters().InParallel = IS_IN_PARALLEL;
             anAlgo.SetShape(theShape);
             theAlgo = anAlgo;
             return 0; // no error
+        }
+
+        private IMeshTools_Parameters ChangeParameters()
+        {
+            return myParameters;
         }
 
         public override void Perform(Message_ProgressRange theRange)

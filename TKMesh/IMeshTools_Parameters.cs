@@ -19,12 +19,12 @@
             AngleInterior = -1.0;
             DeflectionInterior = -1.0;
             MinSize = -1.0;
-            /*InParallel(Standard_False),
-            Relative(Standard_False),*/
+            InParallel = (false);
+            Relative = (false);
             InternalVerticesMode = true;
             ControlSurfaceDeflection = true;
-            EnableControlSurfaceDeflectionAllSurfaces = false;/*
-    CleanModel(Standard_True),*/
+            EnableControlSurfaceDeflectionAllSurfaces = false;
+            CleanModel = (true);
             AdjustMinSize = false;/*
     ForceFaceDeflection(Standard_False),
     AllowQualityDecrease(Standard_False)*/

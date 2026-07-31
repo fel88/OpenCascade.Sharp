@@ -223,7 +223,6 @@ namespace TKMesh
         public int PointsNb()
         {
             return myDiscretTool.NbPoints();
-
         }
 
         public bool Value(int theIndex, out gp_Pnt thePoint, out double theParameter)
