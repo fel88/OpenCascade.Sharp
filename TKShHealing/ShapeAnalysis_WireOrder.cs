@@ -99,7 +99,7 @@ namespace TKShHealing
             if (myOrd == null || myOrd.Upper() < theIdx)
                 return theIdx;
 
-            int anOldIdx = myOrd[theIdx];
+            int anOldIdx = myOrd.Value(theIdx);
             return (anOldIdx == 0 ? theIdx : anOldIdx);
         }
 
@@ -117,7 +117,7 @@ namespace TKShHealing
 
             // sequence of the edge nums in the right order
             TColStd_HSequenceOfInteger anEdgeSeq = new TColStd_HSequenceOfInteger();
-            NCollection_Sequence<List<int>> aLoops = new NCollection_Sequence<List<int>>();
+            NCollection_Sequence<TColStd_HSequenceOfInteger> aLoops = new ();
 
             // the beginnings and ends of the edges
             TColgp_Array1OfXYZ aBegins3D = new TColgp_Array1OfXYZ(1, aNbEdges);
@@ -411,11 +411,11 @@ namespace TKShHealing
             aLoops.Append(anEdgeSeq);
 
             // handling with constructed loops
-            List<int> aMainLoop;
+            TColStd_HSequenceOfInteger aMainLoop;
             if (myKeepLoops)
             {
                 // keeping the loops, adding one after another.
-                aMainLoop = new List<int>();
+                aMainLoop = new TColStd_HSequenceOfInteger();
                 for (int i = 1; i <= aLoops.Count; i++)
                 {
                     List<int> aCurLoop = aLoops.Value(i);

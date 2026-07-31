@@ -61,7 +61,7 @@ namespace OCCPort
             throw new Standard_DomainError();
         }
 
-        public bool IsCurveOnClosedSurface()
+        public virtual bool IsCurveOnClosedSurface()
         {
             return false;
         }

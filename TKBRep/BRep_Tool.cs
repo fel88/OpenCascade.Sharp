@@ -96,23 +96,26 @@ namespace TKBRep
 
             // find the representation
             BRep_TEdge TE = (BRep_TEdge)E.TShape();
-            //BRep_ListIteratorOfListOfCurveRepresentation itcr(TE->Curves());
-            foreach (var cr in TE.Curves())
+            BRep_ListIteratorOfListOfCurveRepresentation itcr = new(TE.Curves());
+            while (itcr.More())
             {
-
+                BRep_CurveRepresentation cr = itcr.Value();
                 if (cr.IsCurveOnSurface(S, l))
                 {
                     if (cr.IsCurveOnClosedSurface() && Eisreversed)
                     {
+                        throw new NotImplementedException();
                         /*const BRep_CurveOnClosedSurface* CR =
                           static_cast <const BRep_CurveOnClosedSurface*> (cr.get());
                         CR->UVPoints2(PFirst, PLast);*/
                     }
                     else
                     {
-                        // BRep_CurveOnSurface CR =
-                        //  (BRep_CurveOnSurface)cr;
-                        // CR.UVPoints(PFirst, PLast);
+                        throw new NotImplementedException();
+
+                        /* BRep_CurveOnSurface CR =
+                          (BRep_CurveOnSurface)cr;
+                         CR.UVPoints(PFirst, PLast);*/
                     }
                     return;
                 }
@@ -918,9 +921,9 @@ namespace TKBRep
                 return hasBound && aMap.IsEmpty();
             }
             else if (theShape.ShapeType() == TopAbs_ShapeEnum.TopAbs_WIRE)
-            {                
-                NCollection_Map<TopoDS_Shape, TopTools_ShapeMapHasher> aMap=new ();
-                
+            {
+                NCollection_Map<TopoDS_Shape, TopTools_ShapeMapHasher> aMap = new();
+
                 TopExp_Explorer exp = new TopExp_Explorer(theShape.Oriented(TopAbs_Orientation.TopAbs_FORWARD), TopAbs_ShapeEnum.TopAbs_VERTEX);
                 bool hasBound = false;
                 for (; exp.More(); exp.Next())
@@ -1060,15 +1063,17 @@ namespace TKBRep
             return null;
         }
 
+        //! Returns the max continuity of edge between some surfaces or GeomAbs_C0 if there no such surfaces.
         public static GeomAbs_Shape MaxContinuity(TopoDS_Edge theEdge)
         {
             GeomAbs_Shape aMaxCont = GeomAbs_Shape.GeomAbs_C0;
             var curves = ((BRep_TEdge)theEdge.TShape()).ChangeCurves();
-            //for (BRep_ListIteratorOfListOfCurveRepresentation aReprIter ((*((Handle(BRep_TEdge) *) & theEdge.TShape()))->ChangeCurves());
-            //  aReprIter.More(); aReprIter.Next())
-            foreach (var item in curves)
+
+            for (BRep_ListIteratorOfListOfCurveRepresentation aReprIter = new(curves);
+              aReprIter.More(); aReprIter.Next())
+            //foreach (var item in curves)
             {
-                BRep_CurveRepresentation aRepr = item;
+                BRep_CurveRepresentation aRepr = aReprIter.Value();
                 if (aRepr.IsRegularity())
                 {
                     GeomAbs_Shape aCont = aRepr.Continuity();

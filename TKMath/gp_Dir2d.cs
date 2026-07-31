@@ -11,9 +11,7 @@ namespace TKMath
     //! for constructing unit vectors and works, in particular, with
     //! the parametric equations of unit vectors
     public class gp_Dir2d
-    {
-        private double dU;
-        private double dV;
+    {                
         //! For this unit vector, returns its X coordinate.
         public double X() { return coord.X(); }
 

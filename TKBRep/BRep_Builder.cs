@@ -799,26 +799,4 @@ namespace TKBRep
             throw new NotImplementedException();
         }
     }
-
-
-    //! Representation  of a    curve by two  pcurves   on
-    //! a closed surface.
-    public class BRep_CurveOnClosedSurface : BRep_CurveOnSurface
-    {
-        public BRep_CurveOnClosedSurface
-   (Geom2d_Curve PC1,
-    Geom2d_Curve PC2,
-    Geom_Surface S,
-    TopLoc_Location L,
-    GeomAbs_Shape C) : base(PC1, S, L)
-        {
-            myPCurve2 = (PC2);
-            myContinuity = (C);
-        }
-
-        Geom2d_Curve myPCurve2;
-        GeomAbs_Shape myContinuity;
-        gp_Pnt2d myUV21;
-        gp_Pnt2d myUV22;
-    }
 }

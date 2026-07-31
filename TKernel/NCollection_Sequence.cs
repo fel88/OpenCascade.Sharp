@@ -7,6 +7,10 @@ using System.Xml.Linq;
 
 namespace TKernel
 {
+    /**
+ * Purpose:     Definition of a sequence of elements indexed by
+ *              an Integer in range of 1..n
+ */
     public class NCollection_Sequence<T> : List<T>
     {
         public NCollection_Sequence<T> ChangeSequence()
