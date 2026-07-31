@@ -104,7 +104,7 @@ namespace TKG3d
 
         public override void D1(double U, double V, out gp_Pnt P, out gp_Vec D1U, out gp_Vec D1V)
         {
-            throw new NotImplementedException();
+            ElSLib.SphereD1(U, V, pos, radius, out P, out D1U, out D1V);
         }
 
         public override void D2(double U, double V, out gp_Pnt P, out gp_Vec D1U, out gp_Vec D1V, out gp_Vec D2U, out gp_Vec D2V, out gp_Vec D2UV)

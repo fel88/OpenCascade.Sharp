@@ -22,6 +22,52 @@ namespace TKMath
     //! Note: ElSLib stands for Elementary Surfaces Library.
     public class ElSLib
     {
+
+        public static void SphereD1(double U,
+                    double V,
+                    gp_Ax3 Pos,
+                    double Radius,
+                 out gp_Pnt P,
+                  out gp_Vec Vu,
+                   out gp_Vec Vv)
+        {
+            P = new gp_Pnt();
+            Vu = new gp_Vec();
+            Vv = new gp_Vec();
+            // Vxy = CosU * XDirection + SinU * YDirection
+            // DVxy = -SinU * XDirection + CosU * YDirection
+
+            // P(U,V) = Location +  R * CosV * Vxy  +   R * SinV * Direction
+
+            // Vu = R * CosV * DVxy
+
+            // Vv = -R * SinV * Vxy + R * CosV * Direction
+
+             gp_XYZ XDir = Pos.XDirection().XYZ();
+             gp_XYZ YDir = Pos.YDirection().XYZ();
+             gp_XYZ ZDir = Pos.Direction().XYZ();
+             gp_XYZ PLoc = Pos.Location().XYZ();
+
+            double CosU = Math.Cos(U);
+            double SinU = Math.Sin(U);
+            double R1 = Radius * Math.Cos(V);
+            double R2 = Radius * Math.Sin(V);
+            double A1 = R1 * CosU;
+            double A2 = R1 * SinU;
+            double A3 = R2 * CosU;
+            double A4 = R2 * SinU;
+            P.SetX(A1 * XDir.X() + A2 * YDir.X() + R2 * ZDir.X() + PLoc.X());
+            P.SetY(A1 * XDir.Y() + A2 * YDir.Y() + R2 * ZDir.Y() + PLoc.Y());
+            P.SetZ(A1 * XDir.Z() + A2 * YDir.Z() + R2 * ZDir.Z() + PLoc.Z());
+            Vu.SetX(-A2 * XDir.X() + A1 * YDir.X());
+            Vu.SetY(-A2 * XDir.Y() + A1 * YDir.Y());
+            Vu.SetZ(-A2 * XDir.Z() + A1 * YDir.Z());
+            Vv.SetX(-A3 * XDir.X() - A4 * YDir.X() + R1 * ZDir.X());
+            Vv.SetY(-A3 * XDir.Y() - A4 * YDir.Y() + R1 * ZDir.Y());
+            Vv.SetZ(-A3 * XDir.Z() - A4 * YDir.Z() + R1 * ZDir.Z());
+        }
+
+
         public static void SphereD2(double U,
 
                    double V,
