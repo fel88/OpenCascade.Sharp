@@ -85,9 +85,9 @@ namespace TKV3d
 
             int aSegmentEdgeNb = (aNbVertices - thePoints.Size()) * 2;
             Graphic3d_ArrayOfSegments aSegments = new Graphic3d_ArrayOfSegments(aNbVertices, aSegmentEdgeNb);
-            foreach (var anIt in thePoints)
+            for (Prs3d_NListOfSequenceOfPnt.Iterator anIt = new(thePoints); anIt.More(); anIt.Next())
             {
-                TColgp_SequenceOfPnt aPoints = anIt;
+                TColgp_SequenceOfPnt aPoints = anIt.Value();
 
                 int aSegmentEdge = aSegments.VertexNumber() + 1;
                 aSegments.AddVertex(aPoints.First());

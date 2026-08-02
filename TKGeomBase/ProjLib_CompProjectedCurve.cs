@@ -164,5 +164,10 @@ namespace TKGeomBase
         {
             throw new NotImplementedException();
         }
+
+        public override gp_Pnt2d Value(double U)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

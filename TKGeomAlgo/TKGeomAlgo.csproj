@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TKG3d\TKG3d.csproj" />
+    <ProjectReference Include="..\TKGeomBase\TKGeomBase.csproj" />
   </ItemGroup>
 
 </Project>

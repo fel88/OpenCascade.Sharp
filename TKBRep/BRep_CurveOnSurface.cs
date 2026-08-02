@@ -20,6 +20,16 @@ namespace OCCPort
             mySurface = S;
 
         }
+
+
+        public void UVPoints(ref gp_Pnt2d P1,
+                               ref gp_Pnt2d P2)
+        {
+            P1 = myUV1;
+            P2 = myUV2;
+        }
+
+
         public override Geom_Surface Surface()
         {
             return mySurface;
@@ -68,6 +78,12 @@ namespace OCCPort
             return true;
         }
 
+        public void SetUVPoints(gp_Pnt2d P1,
+                             gp_Pnt2d P2)
+        {
+            myUV1 = P1;
+            myUV2 = P2;
+        }
         public override BRep_CurveRepresentation Copy()
         {
             throw new NotImplementedException();

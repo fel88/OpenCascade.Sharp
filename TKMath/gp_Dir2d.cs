@@ -30,6 +30,11 @@ namespace TKMath
             coord.SetY(theYv / aD);
         }
 
+        public static double operator ^(gp_Dir2d v, gp_Dir2d theRight)
+        {
+            return v.Crossed(theRight);
+        }
+
         //! Computes the scalar product
         public double Dot(gp_Dir2d theOther) { return coord.Dot(theOther.coord); }
         public void Reverse() { coord.Reverse(); }

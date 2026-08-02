@@ -33,6 +33,15 @@ namespace TKMath
         public gp_Ax2d Position() { return pos; }
 
 
+        //! Returns the normalized coefficients of the line :
+        //! theA * X + theB * Y + theC = 0.
+        public void Coefficients(out double theA, out double theB, out double theC)
+        {
+            theA = pos.Direction().Y();
+            theB = -pos.Direction().X();
+            theC = -(theA * pos.Location().X() + theB * pos.Location().Y());
+        }
+
         //! Returns the direction of the line.
         public gp_Dir2d Direction() { return pos.Direction(); }
 

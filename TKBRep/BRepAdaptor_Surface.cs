@@ -1,4 +1,5 @@
-﻿using TKBRep;
+﻿using System.Threading;
+using TKBRep;
 using TKernel;
 using TKG3d;
 using TKMath;
@@ -54,7 +55,13 @@ namespace OCCPort
         public BRepAdaptor_Surface(TopoDS_Face F, bool R = true)
         {
             Initialize(F, R);
+        }
 
+        public BRepAdaptor_Surface(BRepAdaptor_Surface aSurface)
+        {
+            mySurf = aSurface.mySurf;
+            myTrsf = aSurface.myTrsf;
+            myFace = aSurface.myFace;
         }
 
         public gp_Pnt Value(double U, double V)
@@ -131,14 +138,16 @@ namespace OCCPort
             return mySurf.VPeriod();
         }
 
-        public override double VResolution(double v)
+        public override double VResolution(double theR3d)
         {
-            throw new System.NotImplementedException();
+            return mySurf.VResolution(theR3d);
+
         }
 
-        public override double UResolution(double v)
+        public override double UResolution(double theR3d)
         {
-            throw new System.NotImplementedException();
+            return mySurf.UResolution(theR3d);
+
         }
 
         public override void D1(double U, double V, out gp_Pnt P, out gp_Vec D1U, out gp_Vec D1V)

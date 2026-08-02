@@ -72,7 +72,7 @@ namespace TKMesh
                 //if (debugCache.Any(z => CheckEqual(z.Item1, thePoint) && !CheckEqual(z.Item2, thePoint2d)))                
                  //   throw new Exception("error");
                 
-               // debugCache.Add((thePoint, thePoint2d));
+             //   debugCache.Add((thePoint, thePoint2d));
                 //end not origin code
                 myNodesMap.Append(thePoint);
             }

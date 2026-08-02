@@ -15,25 +15,26 @@ namespace TKG2d
     //! Polynomial coefficients of BSpline curves used for their evaluation are
     //! cached for better performance. Therefore these evaluations are not
     //! thread-safe and parallel evaluations need to be prevented.
-    public abstract class Adaptor2d_Curve2d: ITheCurve
-    {        
+    public abstract class Adaptor2d_Curve2d : ITheCurve
+    {
 
         public abstract bool IsPeriodic();
 
         //! Computes the point of parameter U on the curve.
         public abstract void D0(double U, ref gp_Pnt2d P);
         public abstract double Resolution(double u);
-
+        //! Computes the point of parameter U on the curve.
+        public abstract gp_Pnt2d Value(double U);
         public abstract double Period();
 
-        public abstract int NbIntervals( GeomAbs_Shape shape ) ;
+        public abstract int NbIntervals(GeomAbs_Shape shape);
 
         //! Stores in <T> the  parameters bounding the intervals
         //! of continuity <S>.
         //!
         //! The array must provide  enough room to  accommodate
         //! for the parameters. i.e. T.Length() > NbIntervals()
-        public abstract   void Intervals(TColStd_Array1OfReal T,  GeomAbs_Shape S) ;
+        public abstract void Intervals(TColStd_Array1OfReal T, GeomAbs_Shape S);
 
 
         public abstract int Degree();

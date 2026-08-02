@@ -20,6 +20,18 @@ namespace TKG2d
         double myFirst;
         double myLast;
 
+        Geom2d_BSplineCurve myBSplineCurve; ///< B-spline representation to prevent castings
+        BSplCLib_Cache myCurveCache; ///< Cached data for B-spline or Bezier curve
+        //Geom2dEvaluator_Curve myNestedEvaluator; ///< Calculates value of offset curve
+        public void Reset()
+        {
+            myTypeCurve = GeomAbs_CurveType.GeomAbs_OtherCurve;
+            myCurve = null;
+            myCurveCache = null;
+            //myNestedEvaluator = null;
+            myBSplineCurve = null;
+            myFirst = myLast = 0.0;
+        }
         public override double Period()
         {
             return myCurve.LastParameter() - myCurve.FirstParameter();
@@ -41,9 +53,9 @@ namespace TKG2d
             return myBSplineCurve;
         }
 
-        Geom2d_BSplineCurve myBSplineCurve; ///< B-spline representation to prevent castings
+        
 
-        public gp_Pnt2d Value(double U)
+        public override  gp_Pnt2d Value(double U)
         {
             gp_Pnt2d aRes = new gp_Pnt2d();
             D0(U, ref aRes);
@@ -585,13 +597,13 @@ namespace TKG2d
             if (myTypeCurve == GeomAbs_CurveType.GeomAbs_BSplineCurve)
             {
                 throw new NotImplementedException();
-//                return LocalContinuity(myFirst, myLast);
+                //                return LocalContinuity(myFirst, myLast);
             }
-            else if (myTypeCurve ==GeomAbs_CurveType. GeomAbs_OffsetCurve)
+            else if (myTypeCurve == GeomAbs_CurveType.GeomAbs_OffsetCurve)
             {
                 throw new NotImplementedException();
                 //GeomAbs_Shape S =
-               // ((Geom2d_OffsetCurve)(myCurve)).GetBasisCurveContinuity();
+                // ((Geom2d_OffsetCurve)(myCurve)).GetBasisCurveContinuity();
                 //switch (S)
                 //{
                 //    case GeomAbs_Shape.GeomAbs_CN: return GeomAbs_Shape.GeomAbs_CN;
@@ -793,5 +805,7 @@ namespace TKG2d
             T[(T.Lower())] = myFirst;
             T[(T.Lower() + myNbIntervals)] = myLast;
         }
+
+        
     }
 }

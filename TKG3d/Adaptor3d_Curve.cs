@@ -62,14 +62,8 @@ namespace TKG3d
 
         public abstract gp_Pnt Value(double d);
 
-        public virtual double FirstParameter()
-        {
-            throw new Standard_NotImplemented("Adaptor3d_Curve::FirstParameter");
-        }
-        public virtual double LastParameter()
-        {
-            throw new Standard_NotImplemented("Adaptor3d_Curve::LastParameter");
-        }
+        public abstract double FirstParameter();
+        public abstract double LastParameter();
 
         //void Adaptor3d_Curve::D0(const Standard_Real U, gp_Pnt& P) const 
         public abstract void D0(double d, ref gp_Pnt p);

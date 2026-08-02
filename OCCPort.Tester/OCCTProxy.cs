@@ -98,7 +98,7 @@ namespace OCCPort.Tester
 
             var ais = myAISContext;
             var drawer = ais.DefaultDrawer();
-            drawer.SetFaceBoundaryDraw(true);
+            //drawer.SetFaceBoundaryDraw(true);
             drawer.SetColor(new Quantity_Color(Quantity_NameOfColor.Quantity_NOC_BLACK));
             myAISContext.EnableDrawHiddenLine();
 

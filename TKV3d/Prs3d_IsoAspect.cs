@@ -21,7 +21,7 @@ namespace TKV3d
             int theNumber)
             : base(theColor, theType, theWidth)
         {
-
+            myNumber = (theNumber);
         }
 
         //! defines the number of U or V isoparametric curves

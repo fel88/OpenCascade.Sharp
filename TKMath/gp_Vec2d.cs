@@ -13,6 +13,7 @@ namespace TKMath
         //! For this vector, returns its two coordinates as a number pair
         public gp_XY XY() { return coord; }
 
+       public  void Multiply( double theScalar) { coord.Multiply(theScalar); }
         //! For this vector, returns its Y  coordinate.
         public double Y() { return coord.Y(); }
         //! Assigns the two coordinates of theCoord to this vector.

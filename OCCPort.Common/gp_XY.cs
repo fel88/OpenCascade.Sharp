@@ -18,6 +18,16 @@
             return new gp_XY(x / theScalar, y / theScalar);
         }
 
+        //! @code
+        //! <me>.X() = <me>.X() * theScalar;
+        //! <me>.Y() = <me>.Y() * theScalar;
+        //! @endcode
+        public void Multiply(double theScalar)
+        {
+            x *= theScalar;
+            y *= theScalar;
+        }
+
         //! divides <me> by a real.
         public void Divide(double theScalar)
         {
