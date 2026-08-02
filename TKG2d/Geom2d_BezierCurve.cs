@@ -77,5 +77,10 @@ namespace TKG2d
         {
             throw new NotImplementedException();
         }
+
+        public override gp_Vec2d DN(double U, int N)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace OCCPort.Common
+﻿using System.Threading;
+
+namespace OCCPort.Common
 {
     //! This class describes a cartesian coordinate entity in 2D
     //! space {X,Y}. This class is non persistent. This entity used
@@ -67,6 +69,29 @@
         public static double operator ^(gp_XY theOther, gp_XY v2) { return theOther.Crossed(v2); }
 
 
+        //! --  Computes  the following linear combination and
+        //! assigns the result to this number pair:
+        //! @code
+        //! theA1 * theXY1 + theA2 * theXY2 + theXY3
+        //! @endcode
+        public void SetLinearForm(double theA1, gp_XY theXY1,
+                             double theA2, gp_XY theXY2,
+                              gp_XY theXY3)
+        {
+            x = theA1 * theXY1.x + theA2 * theXY2.x + theXY3.x;
+            y = theA1 * theXY1.y + theA2 * theXY2.y + theXY3.y;
+        }
+        //! Computes  the following linear combination and
+        //! assigns the result to this number pair:
+        //! @code
+        //! theA1 * theXY1 + theA2 * theXY2
+        //! @endcode
+        public void SetLinearForm(double theA1, gp_XY theXY1,
+                              double theA2, gp_XY theXY2)
+        {
+            x = theA1 * theXY1.x + theA2 * theXY2.x;
+            y = theA1 * theXY1.y + theA2 * theXY2.y;
+        }
         public void SetLinearForm(double theA1, gp_XY theXY1,
                               gp_XY theXY2)
         {

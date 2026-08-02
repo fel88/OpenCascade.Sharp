@@ -19,6 +19,9 @@ namespace TKG2d
     //! the parameter of the conic.
     public class Geom2d_Conic : Geom2d_Curve
     {
+        //! Returns the local coordinates system of the conic.
+        public  gp_Ax22d Position()  { return pos; }
+
         public override Geom2d_Geometry Copy()
         {
             throw new NotImplementedException();
@@ -61,6 +64,11 @@ namespace TKG2d
         }
 
         public override void D2(double U, out gp_Pnt2d P, out gp_Vec2d V1, out gp_Vec2d V2)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override gp_Vec2d DN(double U, int N)
         {
             throw new NotImplementedException();
         }

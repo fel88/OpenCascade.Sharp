@@ -87,6 +87,7 @@ namespace TKG3d
         {
             throw new Standard_NotImplemented("Adaptor3d_Surface::NbVPoles");
         }
+        public abstract gp_Pnt Value(double v1, double v2);
 
         //=======================================================================
         //function : OffsetValue
@@ -105,6 +106,7 @@ namespace TKG3d
         //=======================================================================
 
         public abstract Adaptor3d_Surface BasisSurface();
+        public abstract Adaptor3d_Curve BasisCurve();
 
         public abstract double FirstVParameter();
         public abstract double LastVParameter();

@@ -1,4 +1,5 @@
-﻿using TKMath;
+﻿using OCCPort.Common;
+using TKMath;
 
 namespace TKG2d
 {
@@ -41,6 +42,10 @@ namespace TKG2d
     //! closed even if the basis curve is not closed.
     public class Geom2d_OffsetCurve : Geom2d_Curve
     {
+        public double  Offset() 
+{ return offsetValue; }
+        double  offsetValue;
+
         public override Geom2d_Geometry Copy()
         {
             throw new NotImplementedException();
@@ -88,6 +93,11 @@ namespace TKG2d
         }
 
         public override double ReversedParameter(double U)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override gp_Vec2d DN(double U, int N)
         {
             throw new NotImplementedException();
         }

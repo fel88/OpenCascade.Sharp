@@ -1,5 +1,9 @@
-﻿using TKBRep;
+﻿using OCCPort.Common;
+using System.Reflection.Metadata;
+using TKBRep;
+using TKG2d;
 using TKG3d;
+using TKGeomBase;
 using TKMath;
 
 namespace OCCPort
@@ -166,15 +170,198 @@ namespace OCCPort
                              TopoDS_Edge aE,
                             Bnd_Box2d aB)
         {
-            double aT1, aT2, aXmin = 0.0, aYmin = 0.0, aXmax = 0.0, aYmax = 0.0;
+            double aT1 = 0, aT2 = 0, aXmin = 0.0, aYmin = 0.0, aXmax = 0.0, aYmax = 0.0;
             double aUmin, aUmax, aVmin, aVmax;
-            Bnd_Box2d aBoxC, aBoxS;
+            Bnd_Box2d aBoxC = new Bnd_Box2d(), aBoxS = new Bnd_Box2d();
             TopLoc_Location aLoc;
-            /*Geom2d_Curve aC2D = BRep_Tool.CurveOnSurface(aE, aF, aT1, aT2);
+            Geom2d_Curve aC2D = BRep_Tool.CurveOnSurface(aE, aF, ref aT1, ref aT2);
             if (aC2D == null)
             {
                 return;
-            }*/
+            }//
+            BndLib_Add2dCurve.Add(aC2D, aT1, aT2, 0.0, aBoxC);
+            if (!aBoxC.IsVoid())
+            {
+                aBoxC.Get(ref aXmin, ref aYmin, ref aXmax, ref aYmax);
+            }
+            //
+            Geom_Surface aS = BRep_Tool.Surface(aF, out aLoc);
+            aS.Bounds(out aUmin, out aUmax, out aVmin, out aVmax);
+
+            if (aS.DynamicType() == typeof(Geom_RectangularTrimmedSurface))
+            {
+                Geom_RectangularTrimmedSurface aSt =
+                           (Geom_RectangularTrimmedSurface)(aS);
+                aS = aSt.BasisSurface();
+            }
+
+            //
+
+            if (!aS.IsUPeriodic())
+            {
+                bool isUPeriodic = false;
+
+                // Additional verification for U-periodicity for B-spline surfaces
+                // 1. Verify that the surface is U-closed (if such flag is false). Verification uses 2 points
+                // 2. Verify periodicity of surface inside UV-bounds of the edge. Verification uses 3 or 6 points.
+                if (aS.DynamicType() == typeof(Geom_BSplineSurface) &&
+                    (aXmin < aUmin || aXmax > aUmax))
+                {
+                    double aTol2 = 100 * Precision.Confusion() * Precision.Confusion();
+                    isUPeriodic = true;
+                    gp_Pnt P1, P2;
+                    // 1. Verify that the surface is U-closed
+                    if (!aS.IsUClosed())
+                    {
+                        double aVStep = aVmax - aVmin;
+                        for (double aV = aVmin; aV <= aVmax; aV += aVStep)
+                        {
+                            P1 = aS.Value(aUmin, aV);
+                            P2 = aS.Value(aUmax, aV);
+                            if (P1.SquareDistance(P2) > aTol2)
+                            {
+                                isUPeriodic = false;
+                                break;
+                            }
+                        }
+                    }
+                    // 2. Verify periodicity of surface inside UV-bounds of the edge
+                    if (isUPeriodic) // the flag still not changed
+                    {
+                        double aV = (aVmin + aVmax) * 0.5;
+                        double[] aU = new double[6]; // values of U lying out of surface boundaries
+                        double[] aUpp = new double[6]; // corresponding U-values plus/minus period
+                        int aNbPnt = 0;
+                        if (aXmin < aUmin)
+                        {
+                            aU[0] = aXmin;
+                            aU[1] = (aXmin + aUmin) * 0.5;
+                            aU[2] = aUmin;
+                            aUpp[0] = aU[0] + aUmax - aUmin;
+                            aUpp[1] = aU[1] + aUmax - aUmin;
+                            aUpp[2] = aU[2] + aUmax - aUmin;
+                            aNbPnt += 3;
+                        }
+                        if (aXmax > aUmax)
+                        {
+                            aU[aNbPnt] = aUmax;
+                            aU[aNbPnt + 1] = (aXmax + aUmax) * 0.5;
+                            aU[aNbPnt + 2] = aXmax;
+                            aUpp[aNbPnt] = aU[aNbPnt] - aUmax + aUmin;
+                            aUpp[aNbPnt + 1] = aU[aNbPnt + 1] - aUmax + aUmin;
+                            aUpp[aNbPnt + 2] = aU[aNbPnt + 2] - aUmax + aUmin;
+                            aNbPnt += 3;
+                        }
+                        for (int anInd = 0; anInd < aNbPnt; anInd++)
+                        {
+                            P1 = aS.Value(aU[anInd], aV);
+                            P2 = aS.Value(aUpp[anInd], aV);
+                            if (P1.SquareDistance(P2) > aTol2)
+                            {
+                                isUPeriodic = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!isUPeriodic)
+                {
+                    if ((aXmin < aUmin) && (aUmin < aXmax))
+                    {
+                        aXmin = aUmin;
+                    }
+                    if ((aXmin < aUmax) && (aUmax < aXmax))
+                    {
+                        aXmax = aUmax;
+                    }
+                }
+            }
+
+            if (!aS.IsVPeriodic())
+            {
+                bool isVPeriodic = false;
+
+                // Additional verification for V-periodicity for B-spline surfaces
+                // 1. Verify that the surface is V-closed (if such flag is false). Verification uses 2 points
+                // 2. Verify periodicity of surface inside UV-bounds of the edge. Verification uses 3 or 6 points.
+                if (aS.DynamicType() == typeof(Geom_BSplineSurface) &&
+                    (aYmin < aVmin || aYmax > aVmax))
+                {
+                    double aTol2 = 100 * Precision.Confusion() * Precision.Confusion();
+                    isVPeriodic = true;
+                    gp_Pnt P1, P2;
+                    // 1. Verify that the surface is V-closed
+                    if (!aS.IsVClosed())
+                    {
+                        double aUStep = aUmax - aUmin;
+                        for (double aU = aUmin; aU <= aUmax; aU += aUStep)
+                        {
+                            P1 = aS.Value(aU, aVmin);
+                            P2 = aS.Value(aU, aVmax);
+                            if (P1.SquareDistance(P2) > aTol2)
+                            {
+                                isVPeriodic = false;
+                                break;
+                            }
+                        }
+                    }
+                    // 2. Verify periodicity of surface inside UV-bounds of the edge
+                    if (isVPeriodic) // the flag still not changed
+                    {
+                        double aU = (aUmin + aUmax) * 0.5;
+                        double[] aV = new double[6]; // values of V lying out of surface boundaries
+                        double[] aVpp = new double[6]; // corresponding V-values plus/minus period
+                        int aNbPnt = 0;
+                        if (aYmin < aVmin)
+                        {
+                            aV[0] = aYmin;
+                            aV[1] = (aYmin + aVmin) * 0.5;
+                            aV[2] = aVmin;
+                            aVpp[0] = aV[0] + aVmax - aVmin;
+                            aVpp[1] = aV[1] + aVmax - aVmin;
+                            aVpp[2] = aV[2] + aVmax - aVmin;
+                            aNbPnt += 3;
+                        }
+                        if (aYmax > aVmax)
+                        {
+                            aV[aNbPnt] = aVmax;
+                            aV[aNbPnt + 1] = (aYmax + aVmax) * 0.5;
+                            aV[aNbPnt + 2] = aYmax;
+                            aVpp[aNbPnt] = aV[aNbPnt] - aVmax + aVmin;
+                            aVpp[aNbPnt + 1] = aV[aNbPnt + 1] - aVmax + aVmin;
+                            aVpp[aNbPnt + 2] = aV[aNbPnt + 2] - aVmax + aVmin;
+                            aNbPnt += 3;
+                        }
+                        for (int anInd = 0; anInd < aNbPnt; anInd++)
+                        {
+                            P1 = aS.Value(aU, aV[anInd]);
+                            P2 = aS.Value(aU, aVpp[anInd]);
+                            if (P1.SquareDistance(P2) > aTol2)
+                            {
+                                isVPeriodic = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!isVPeriodic)
+                {
+                    if ((aYmin < aVmin) && (aVmin < aYmax))
+                    {
+                        aYmin = aVmin;
+                    }
+                    if ((aYmin < aVmax) && (aVmax < aYmax))
+                    {
+                        aYmax = aVmax;
+                    }
+                }
+            }
+
+            aBoxS.Update(aXmin, aYmin, aXmax, aYmax);
+
+            aB.Add(aBoxS);
         }
 
         //=======================================================================

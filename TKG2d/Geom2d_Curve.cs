@@ -38,6 +38,17 @@ namespace TKG2d
         //! Raised if the continuity of the curve is not C2.
         public abstract void D2(double U, out gp_Pnt2d P, out gp_Vec2d V1, out gp_Vec2d V2);
 
+        //! For the point of parameter U of this curve, computes
+        //! the vector corresponding to the Nth derivative.
+        //! Exceptions
+        //! StdFail_UndefinedDerivative if:
+        //! - the continuity of the curve is not "CN", or
+        //! - the derivative vector cannot be computed easily;
+        //! this is the case with specific types of curve (for
+        //! example, a rational BSpline curve where N is greater than 3).
+        //! Standard_RangeError if N is less than 1.
+        public abstract   gp_Vec2d DN( double  U,  int N) ;
+
 
         //! curve becomes the StartPoint of the reversed curve.
         public abstract void Reverse();

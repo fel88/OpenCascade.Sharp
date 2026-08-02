@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using OCCPort.Common;
+using System.Threading;
 using TKBRep;
 using TKernel;
 using TKG3d;
@@ -64,7 +65,7 @@ namespace OCCPort
             myFace = aSurface.myFace;
         }
 
-        public gp_Pnt Value(double U, double V)
+        public override gp_Pnt Value(double U, double V)
         {
             return mySurf.Value(U, V).Transformed(myTrsf);
         }
@@ -181,25 +182,37 @@ namespace OCCPort
             D2UV.Transform(myTrsf);
         }
 
-        public override int NbVIntervals(GeomAbs_Shape shape)
-        {
-            throw new NotImplementedException();
-        }
+        //! If necessary, breaks the surface in U intervals of
+        //! continuity    <S>.  And   returns  the  number  of
+        //! intervals.
+        public override int NbUIntervals(GeomAbs_Shape theSh) { return mySurf.NbUIntervals(theSh); }
 
-        public override int NbUIntervals(GeomAbs_Shape shape)
-        {
-            throw new NotImplementedException();
-        }
+        //! If necessary, breaks the surface in V intervals of
+        //! continuity    <S>.  And   returns  the  number  of
+        //! intervals.
+        public override int NbVIntervals(GeomAbs_Shape theSh) { return mySurf.NbVIntervals(theSh); }
 
-        public override void UIntervals(TColStd_Array1OfReal array, GeomAbs_Shape shape)
+
+        public override void UIntervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
         {
-            throw new NotImplementedException();
+            mySurf.UIntervals(T, S);
+
         }
 
         public override void VIntervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
         {
-            throw new NotImplementedException();
+            mySurf.VIntervals(T, S);
         }
+
+        public override Adaptor3d_Curve BasisCurve()
+        {
+            GeomAdaptor_Surface HS = new GeomAdaptor_Surface();
+            HS.Load((Geom_Surface)(mySurf.Surface().Transformed(myTrsf)));
+
+            return HS.BasisCurve();
+        }
+
+
     }
 }
 

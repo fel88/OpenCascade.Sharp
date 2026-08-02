@@ -22,7 +22,158 @@ namespace TKG3d
         }
         public override gp_Circ Circle()
         {
-            throw new NotImplementedException();
+            gp_Ax3 axes;
+            double  radius, h = 0.0;
+
+            switch (mySurface._GetType())
+            {
+
+                case GeomAbs_SurfaceType.GeomAbs_Cylinder:
+                    {
+                        gp_Cylinder cyl = mySurface.Cylinder();
+
+                        switch (myIso)
+                        {
+
+                            case GeomAbs_IsoType.GeomAbs_IsoU:
+                                {
+                                    throw new Standard_NoSuchObject("Adaptor3d_IsoCurve:UIso");
+                                }
+                            case GeomAbs_IsoType.GeomAbs_IsoV:
+                                {
+                                    throw new NotImplementedException();
+                                    //return ElSLib.CylinderVIso(cyl.Position(), cyl.Radius(), myParameter);
+                                }
+                                case GeomAbs_IsoType.GeomAbs_NoneIso:
+                                {
+                                    throw new Standard_NoSuchObject("Adaptor3d_IsoCurve:NoneIso");
+                                }
+                        }
+                        break;
+                    }
+
+                case GeomAbs_SurfaceType. GeomAbs_Cone:
+                    {
+                        throw new NotImplementedException();
+                        //gp_Cone cone = mySurface->Cone();
+
+                        //switch (myIso)
+                        //{
+
+                        //    case GeomAbs_IsoU:
+                        //        {
+                        //            throw Standard_NoSuchObject("Adaptor3d_IsoCurve:UIso");
+                        //        }
+                        //    case GeomAbs_IsoV:
+                        //        {
+                        //            return ElSLib::ConeVIso(cone.Position(), cone.RefRadius(),
+                        //                        cone.SemiAngle(), myParameter);
+                        //        }
+                        //    case GeomAbs_NoneIso:
+                        //        {
+                        //            throw Standard_NoSuchObject("Adaptor3d_IsoCurve:NoneIso");
+                        //        }
+                        //}
+                        break;
+                    }
+
+                case GeomAbs_SurfaceType. GeomAbs_Sphere:
+                    {
+                        gp_Sphere sph = mySurface.Sphere();
+
+                        switch (myIso)
+                        {
+
+                            case GeomAbs_IsoType.GeomAbs_IsoU:
+                                {
+                                    return ElSLib.SphereUIso(sph.Position(), sph.Radius(), myParameter);
+                                }
+
+                            case GeomAbs_IsoType.GeomAbs_IsoV:
+                                {
+                                    return ElSLib.SphereVIso(sph.Position(), sph.Radius(), myParameter);
+                                }
+
+                            case GeomAbs_IsoType.GeomAbs_NoneIso:
+                                {
+                                    throw new Standard_NoSuchObject("Adaptor3d_IsoCurve:NoneIso");
+                                }
+                        }
+                        break;
+                    }
+
+                case GeomAbs_SurfaceType.GeomAbs_Torus:
+                    {
+                        throw new NotImplementedException();
+
+                        //        gp_Torus tor = mySurface->Torus();
+
+                        //        switch (myIso)
+                        //        {
+
+                        //            case GeomAbs_IsoU:
+                        //                {
+                        //                    return ElSLib::TorusUIso(tor.Position(), tor.MajorRadius(),
+                        //                                 tor.MinorRadius(), myParameter);
+                        //                }
+
+                        //            case GeomAbs_IsoV:
+                        //                {
+                        //                    return ElSLib::TorusVIso(tor.Position(), tor.MajorRadius(),
+                        //                                 tor.MinorRadius(), myParameter);
+                        //                }
+
+                        //            case GeomAbs_NoneIso:
+                        //                {
+                        //                    throw Standard_NoSuchObject("Adaptor3d_IsoCurve:NoneIso");
+                        //                }
+                        //        }
+                        break;
+                    }
+
+                case GeomAbs_SurfaceType.GeomAbs_SurfaceOfRevolution:
+                    {
+                        throw new NotImplementedException();
+
+//                        if (myIso ==GeomAbs_IsoType. GeomAbs_IsoV)
+//                        {
+//                             gp_Pnt aVal0 = Value(0.0);
+//                            gp_Ax1 Ax1 = mySurface.AxeOfRevolution();
+//                            if (new gp_Lin(Ax1).Contains(aVal0, Precision.SquareConfusion.Confusion()))
+//                            {
+//                                return new gp_Circ(new gp_Ax2(aVal0, Ax1.Direction()), 0);
+//                            }
+//                            else
+//                            {
+//                                gp_Vec DX=new(Ax1.Location(), aVal0);
+//                                axes = new gp_Ax3(Ax1.Location(), Ax1.Direction(), DX);
+//                                computeHR(axes, aVal0, h, radius);
+//                                gp_Vec VT = axes.Direction();
+//                                axes.Translate(VT * h);
+//                                return new gp_Circ(axes.Ax2(), radius);
+//                            }
+//                        }
+//                        else
+//                        {
+//                            throw new NotImplementedException();
+//                            ///return mySurface.BasisCurve().Circle().Rotated
+////                              (mySurface.AxeOfRevolution(), myParameter);
+                        //}
+                    }
+
+                //case GeomAbs_SurfaceOfExtrusion:
+                //    {
+                //        return mySurface->BasisCurve()->Circle().Translated
+                //          (myParameter * gp_Vec(mySurface->Direction()));
+                //    }
+                default:
+                    {
+                        throw new Standard_NoSuchObject("Adaptor3d_IsoCurve:Circle");
+                    }
+
+            }
+            // portage WNT
+            return new gp_Circ();
         }
 
         public override  double  FirstParameter()   { return myFirst; }
@@ -111,9 +262,23 @@ Adaptor3d_Surface mySurface;
 
         }
 
-        public override void D0(double d, ref gp_Pnt p)
+        public override void D0(double T, ref gp_Pnt P)
         {
-            throw new NotImplementedException();
+            switch (myIso)
+            {
+
+                case GeomAbs_IsoType.GeomAbs_IsoU:
+                    mySurface.D0(myParameter, T, ref P);
+                    break;
+
+                case GeomAbs_IsoType.GeomAbs_IsoV:
+                    mySurface.D0(T, myParameter, ref P);
+                    break;
+
+                case GeomAbs_IsoType.GeomAbs_NoneIso:
+                    throw new Standard_NoSuchObject("Adaptor3d_IsoCurve:NoneIso");
+                    break;
+            }
         }
 
         public override void D1(double d, out gp_Pnt p, out gp_Vec v)
@@ -131,9 +296,42 @@ Adaptor3d_Surface mySurface;
             throw new NotImplementedException();
         }
 
-        public override void Intervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
+        public override void Intervals(TColStd_Array1OfReal TI, GeomAbs_Shape S)
         {
-            throw new NotImplementedException();
+            if (myIso ==GeomAbs_IsoType. GeomAbs_NoneIso) throw new Standard_NoSuchObject();
+            bool UIso = (myIso == GeomAbs_IsoType.GeomAbs_IsoU);
+
+            int nbInter = UIso ?
+                mySurface.NbVIntervals(S) :
+                mySurface.NbUIntervals(S);
+
+            TColStd_Array1OfReal T=new(1,nbInter + 1);
+
+            if (UIso)
+                mySurface.VIntervals(T, S);
+            else
+                mySurface.UIntervals(T, S);
+
+            if (nbInter == 1)
+            {
+                TI[(TI.Lower())] = myFirst;
+                TI[(TI.Lower() + 1)] = myLast;
+                return;
+            }
+
+            int first = 1;
+            while (T[(first)] <= myFirst) first++;
+            int last = nbInter + 1;
+            while (T[(last)] >= myLast) last--;
+
+            int i = TI.Lower(), j;
+            for (j = first - 1; j <= last + 1; j++)
+            {
+                TI[(i)] = T[(j)];
+                i++;
+            }
+            TI[(TI.Lower())] = myFirst;
+            TI[(TI.Lower() + last - first + 2)] = myLast;
         }
 
         public override bool IsPeriodic()
@@ -148,7 +346,27 @@ Adaptor3d_Surface mySurface;
 
         public override int NbIntervals(GeomAbs_Shape S)
         {
-            throw new NotImplementedException();
+            if (myIso == GeomAbs_IsoType.GeomAbs_NoneIso) throw new Standard_NoSuchObject();
+            bool UIso = (myIso ==GeomAbs_IsoType. GeomAbs_IsoU);
+
+            int nbInter = UIso ?
+                mySurface.NbVIntervals(S) :
+                mySurface.NbUIntervals(S);
+
+            TColStd_Array1OfReal T=new(1,nbInter + 1);
+
+            if (UIso)
+                mySurface.VIntervals(T, S);
+            else
+                mySurface.UIntervals(T, S);
+
+            if (nbInter == 1) return nbInter;
+
+            int first = 1;
+            while (T[(first)] <= myFirst) first++;
+            int last = nbInter + 1;
+            while (T[(last)] >= myLast) last--;
+            return (last - first + 2);
         }
 
         public override int NbKnots()
@@ -166,14 +384,102 @@ Adaptor3d_Surface mySurface;
             throw new NotImplementedException();
         }
 
-        public override gp_Pnt Value(double d)
+        public override gp_Pnt Value(double T)
         {
-            throw new NotImplementedException();
+            switch (myIso)
+            {
+                case GeomAbs_IsoType.GeomAbs_IsoU:
+                    return mySurface.Value(myParameter, T);
+
+                case GeomAbs_IsoType.GeomAbs_IsoV:
+                    return mySurface.Value(T, myParameter);
+
+                case GeomAbs_IsoType.GeomAbs_NoneIso:
+                    {
+                        throw new Standard_NoSuchObject("Adaptor3d_IsoCurve:NoneIso");
+                        break;
+                    }
+            }
+            // portage WNT
+            return new gp_Pnt();
         }
 
         public override GeomAbs_CurveType _GetType()
         {
-            throw new NotImplementedException();
+            switch (mySurface._GetType())
+            {
+
+                case GeomAbs_SurfaceType.GeomAbs_Plane:
+                    return GeomAbs_CurveType. GeomAbs_Line;
+
+                case GeomAbs_SurfaceType.GeomAbs_Cylinder:
+                case GeomAbs_SurfaceType.GeomAbs_Cone:
+                    {
+                        switch (myIso)
+                        {
+                            case GeomAbs_IsoType.GeomAbs_IsoU:
+                                return GeomAbs_CurveType.GeomAbs_Line;
+
+                            case GeomAbs_IsoType.GeomAbs_IsoV:
+                                return GeomAbs_CurveType.GeomAbs_Circle;
+
+                            case GeomAbs_IsoType.GeomAbs_NoneIso:
+                                {
+                                    throw new Standard_NoSuchObject("Adaptor3d_IsoCurve:NoneIso");
+                                }
+                        }
+                        break;
+                    }
+
+                case GeomAbs_SurfaceType.GeomAbs_Sphere:
+                case GeomAbs_SurfaceType.GeomAbs_Torus:
+                    return GeomAbs_CurveType. GeomAbs_Circle;
+
+                case GeomAbs_SurfaceType.GeomAbs_BezierSurface:
+                    return  GeomAbs_CurveType.GeomAbs_BezierCurve;
+
+                case GeomAbs_SurfaceType.GeomAbs_BSplineSurface:
+                    return GeomAbs_CurveType.GeomAbs_BSplineCurve;
+
+                case GeomAbs_SurfaceType.GeomAbs_SurfaceOfRevolution:
+                    {
+                        switch (myIso)
+                        {
+                            case GeomAbs_IsoType.GeomAbs_IsoU:                                
+                                return mySurface.BasisCurve()._GetType();
+
+                            case GeomAbs_IsoType.GeomAbs_IsoV:
+                                return GeomAbs_CurveType.GeomAbs_Circle;
+
+                            case GeomAbs_IsoType.GeomAbs_NoneIso:
+                                throw new Standard_NoSuchObject("Adaptor3d_IsoCurve:NoneIso");
+                                break;
+                        }
+                        break;
+                    }
+
+                    case GeomAbs_SurfaceType.GeomAbs_SurfaceOfExtrusion:
+                    {
+                        switch (myIso)
+                        {
+                            case GeomAbs_IsoType.GeomAbs_IsoU:
+                                return GeomAbs_CurveType.GeomAbs_Line;
+
+                            case GeomAbs_IsoType.GeomAbs_IsoV:                                
+                                return mySurface.BasisCurve()._GetType();
+
+                            case GeomAbs_IsoType.GeomAbs_NoneIso:
+                                throw new Standard_NoSuchObject("Adaptor3d_IsoCurve:NoneIso");
+                                break;
+                        }
+                        break;
+                    }
+                default:
+                    return GeomAbs_CurveType. GeomAbs_OtherCurve;
+            }
+
+            // portage WNT
+            return GeomAbs_CurveType.GeomAbs_OtherCurve;
         }
     }
 

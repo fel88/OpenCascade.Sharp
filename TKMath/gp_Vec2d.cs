@@ -31,6 +31,10 @@ namespace TKMath
             coord = theP2.XY().Subtracted(theP1.XY());
 
         }
+        //! Creates a point with its two Cartesian coordinates.
+        public gp_Vec2d( double  theXv, double theYv) {
+            coord = new(theXv, theYv);
+        }
 
         //! Creates a unitary vector from a direction theV.
         public gp_Vec2d(gp_Dir2d theV)

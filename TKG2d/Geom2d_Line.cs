@@ -1,4 +1,5 @@
-﻿using TKMath;
+﻿using OCCPort.Common;
+using TKMath;
 
 namespace TKG2d
 {
@@ -33,6 +34,19 @@ namespace TKG2d
         {
             pos = new gp_Ax2d(P, V);
 
+        }
+        //! For the point of parameter U of this line, computes
+        //! the vector corresponding to the Nth derivative.
+        //! Note: if N is greater than or equal to 2, the result is a
+        //! vector with null magnitude.
+        //! Exceptions Standard_RangeError if N is less than 1.
+        public override  gp_Vec2d DN( double  U,  int  N)
+        {
+          Exceptions.  Standard_RangeError_Raise_if(N <= 0, " ");
+            if (N == 1)
+                return new  gp_Vec2d(pos.Direction());
+            else
+                return new gp_Vec2d(0.0, 0.0);
         }
 
         public override Geom2d_Geometry Copy()

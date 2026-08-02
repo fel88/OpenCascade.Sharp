@@ -22,6 +22,12 @@ namespace TKMath
     //! -   a gap, which is included on both sides in any direction when consulting the finite bounds of the box.
     public class Bnd_Box2d
     {
+        //! Sets this 2D bounding box so that it is empty. All points are outside a void box.
+        public void SetVoid()
+        {
+            Flags = MaskFlags.VoidMask;
+            Gap = 0.0;
+        }
         double Xmin;
         double Xmax;
         double Ymin;

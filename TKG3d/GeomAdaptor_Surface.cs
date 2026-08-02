@@ -90,7 +90,7 @@ namespace TKG3d
             T[(T.Lower() + myNbUIntervals)] = myULast;
         }
 
-        public gp_Pnt Value(double U,
+        public override  gp_Pnt Value(double U,
                                  double V)
         {
             gp_Pnt aValue = new gp_Pnt();
@@ -600,7 +600,7 @@ namespace TKG3d
             }
         }
 
-        public override int NbVIntervals(GeomAbs_Shape shape)
+        public override int NbVIntervals(GeomAbs_Shape S)
         {
             switch (mySurfaceType)
             {
@@ -610,15 +610,15 @@ namespace TKG3d
                 //          (myBSplineSurface->UIso(myBSplineSurface->UKnot(myBSplineSurface->FirstUKnotIndex())),myVFirst,myVLast);
                 //        return myBasisCurve.NbIntervals(S);
                 //    }
-                //case GeomAbs_SurfaceOfRevolution:
-                //    {
-                //        Handle(Geom_SurfaceOfRevolution) myRevSurf =
-                //            Handle(Geom_SurfaceOfRevolution)::DownCast(mySurface);
-                //        GeomAdaptor_Curve myBasisCurve(myRevSurf->BasisCurve(), myVFirst, myVLast);
-                //        if (myBasisCurve.GetType() == GeomAbs_BSplineCurve)
-                //            return myBasisCurve.NbIntervals(S);
-                //        break;
-                //    }
+                case GeomAbs_SurfaceType.GeomAbs_SurfaceOfRevolution:
+                    {
+                        Geom_SurfaceOfRevolution myRevSurf =
+                            (Geom_SurfaceOfRevolution)(mySurface);
+                        GeomAdaptor_Curve myBasisCurve = new(myRevSurf.BasisCurve(), myVFirst, myVLast);
+                        if (myBasisCurve._GetType() == GeomAbs_CurveType.GeomAbs_BSplineCurve)
+                            return myBasisCurve.NbIntervals(S);
+                        break;
+                    }
                 //case GeomAbs_OffsetSurface:
                 //    {
                 //        GeomAbs_Shape BaseS = GeomAbs_CN;
@@ -636,7 +636,7 @@ namespace TKG3d
                 //        GeomAdaptor_Surface Sur(myOffSurf->BasisSurface(), myUFirst, myULast, myVFirst, myVLast);
                 //        return Sur.NbVIntervals(BaseS);
                 //    }
-                case GeomAbs_SurfaceType. GeomAbs_Plane:
+                case GeomAbs_SurfaceType.GeomAbs_Plane:
                 case GeomAbs_SurfaceType.GeomAbs_Cylinder:
                 case GeomAbs_SurfaceType.GeomAbs_Cone:
                 case GeomAbs_SurfaceType.GeomAbs_Sphere:
@@ -698,8 +698,78 @@ namespace TKG3d
 
         public override void VIntervals(TColStd_Array1OfReal T, GeomAbs_Shape S)
         {
-            throw new NotImplementedException();
+            int myNbVIntervals = 1;
+
+            switch (mySurfaceType)
+            {
+                //case GeomAbs_SurfaceType.GeomAbs_BSplineSurface:
+                //    {
+                //        GeomAdaptor_Curve myBasisCurve=new
+                //          (myBSplineSurface.UIso(myBSplineSurface.UKnot(myBSplineSurface.FirstUKnotIndex())),myVFirst,myVLast);
+                //        myNbVIntervals = myBasisCurve.NbIntervals(S);
+                //        myBasisCurve.Intervals(T, S);
+                //        return;
+                //    }
+                case GeomAbs_SurfaceType.GeomAbs_SurfaceOfRevolution:
+                    {
+                        Geom_SurfaceOfRevolution myRevSurf =
+                            (Geom_SurfaceOfRevolution)(mySurface);
+                        GeomAdaptor_Curve myBasisCurve=new(myRevSurf.BasisCurve(), myVFirst, myVLast);
+                        if (myBasisCurve._GetType() ==GeomAbs_CurveType. GeomAbs_BSplineCurve)
+                        {
+                            myNbVIntervals = myBasisCurve.NbIntervals(S);
+                            myBasisCurve.Intervals(T, S);
+                            return;
+                        }
+                        break;
+                    }
+                case GeomAbs_SurfaceType.GeomAbs_OffsetSurface:
+                    {
+                        GeomAbs_Shape BaseS = GeomAbs_Shape.GeomAbs_CN;
+                        switch (S)
+                        {
+                            case GeomAbs_Shape.GeomAbs_G1: 
+                            case GeomAbs_Shape.GeomAbs_G2: throw new Standard_DomainError("GeomAdaptor_Curve::VIntervals");
+                            case GeomAbs_Shape.GeomAbs_C0: BaseS =  GeomAbs_Shape.GeomAbs_C1; break;
+                            case GeomAbs_Shape.GeomAbs_C1: BaseS = GeomAbs_Shape.GeomAbs_C2; break;
+                            case GeomAbs_Shape.GeomAbs_C2: BaseS = GeomAbs_Shape.GeomAbs_C3; break;
+                            case GeomAbs_Shape.GeomAbs_C3:
+                            case GeomAbs_Shape.GeomAbs_CN: break;
+                        }
+                        Geom_OffsetSurface myOffSurf = (Geom_OffsetSurface)(mySurface);
+                        GeomAdaptor_Surface Sur=new(myOffSurf.BasisSurface(), myUFirst, myULast, myVFirst, myVLast);
+                        myNbVIntervals = Sur.NbVIntervals(BaseS);
+                        Sur.VIntervals(T, BaseS);
+                        return;
+                    }
+                case GeomAbs_SurfaceType.GeomAbs_Plane:
+                case GeomAbs_SurfaceType.GeomAbs_Cylinder:
+                case GeomAbs_SurfaceType.GeomAbs_Cone:
+                case GeomAbs_SurfaceType.GeomAbs_Sphere:
+                case GeomAbs_SurfaceType.GeomAbs_Torus:
+                case GeomAbs_SurfaceType.GeomAbs_BezierSurface:
+                case GeomAbs_SurfaceType.GeomAbs_OtherSurface:
+                case GeomAbs_SurfaceType.GeomAbs_SurfaceOfExtrusion: break;
+            }
+
+            T[(T.Lower())] = myVFirst;
+            T[(T.Lower() + myNbVIntervals)] = myVLast;
         }
+
+        public override Adaptor3d_Curve BasisCurve()
+        {
+            Geom_Curve C;
+            //if (mySurfaceType ==GeomAbs_SurfaceType. GeomAbs_SurfaceOfExtrusion)
+            //  C = (Geom_SurfaceOfLinearExtrusion)(mySurface)->BasisCurve();
+            //else 
+            if (mySurfaceType == GeomAbs_SurfaceType.GeomAbs_SurfaceOfRevolution)
+                C = ((Geom_SurfaceOfRevolution)(mySurface)).BasisCurve();
+            else
+                throw new Standard_NoSuchObject("GeomAdaptor_Surface::BasisCurve");
+            return (GeomAdaptor_Curve)(new GeomAdaptor_Curve(C));
+        }
+
+        
 
         //BSplSLib_Cache mySurfaceCache; ///< Cached data for B-spline or Bezier surface
 

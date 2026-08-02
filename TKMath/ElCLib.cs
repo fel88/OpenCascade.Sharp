@@ -49,6 +49,29 @@ namespace TKMath
             V2.SetXYZ(Coord0);
         }
 
+        public static void CircleD1(double U,
+
+                   gp_Ax22d Pos,
+                   double Radius,
+                out  gp_Pnt2d P,
+                out gp_Vec2d V1)
+        {
+            V1=new gp_Vec2d ();
+            P = new gp_Pnt2d();
+
+            gp_XY Vxy = new gp_XY();
+            gp_XY Xdir=new (Pos.XDirection().XY());
+            gp_XY Ydir=new(Pos.YDirection().XY());
+            double  Xc = Radius * Math.Cos(U);
+            double Yc = Radius * Math.Sin(U);
+            //Point courant :
+            Vxy.SetLinearForm(Xc, Xdir, Yc, Ydir, Pos.Location().XY());
+            P.SetXY(Vxy);
+            //V1 :
+            Vxy.SetLinearForm(-Yc, Xdir, Xc, Ydir);
+            V1.SetXY(Vxy);
+        }
+
         public static gp_Pnt2d Value(double U, gp_Lin2d L)
         {
             return ElCLib.LineValue(U, L.Position());
@@ -199,7 +222,7 @@ namespace TKMath
 
         }
 
-        
+
 
         public static void LineD1(double U,
               gp_Ax1 Pos,

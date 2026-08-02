@@ -37,6 +37,14 @@ namespace TKG2d
             radius = (C.Radius());
             pos = C.Axis();
         }
+        public double  Radius() 
+{ 
+  return radius;
+}
+        public override void D1(double U, out gp_Pnt2d P, out  gp_Vec2d V1)
+        {
+            ElCLib.CircleD1(U, pos, radius, out P,out  V1);
+        }
 
         //! Constructs a circle of radius Radius, whose center is the origin of axis
         //! A; A is the "X Axis" of the local coordinate system

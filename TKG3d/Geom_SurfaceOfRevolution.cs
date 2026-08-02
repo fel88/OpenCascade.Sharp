@@ -48,9 +48,9 @@ namespace TKG3d
         //! U is the angle of the rotation around the revolution axis.
         //! The direction of this axis gives the sense of rotation.
         //! V is the parameter of the revolved curve.
-        public override   void D0( double  U, double   V, ref gp_Pnt P)
+        public override void D0(double U, double V, ref gp_Pnt P)
         {
-            myEvaluator.D0(U, V,out  P);
+            myEvaluator.D0(U, V, out P);
 
         }
 
@@ -124,7 +124,7 @@ namespace TKG3d
 
         public override void D1(double U, double V, out gp_Pnt P, out gp_Vec D1U, out gp_Vec D1V)
         {
-            myEvaluator.D1(U, V, out P, out D1U, out D1V);            
+            myEvaluator.D1(U, V, out P, out D1U, out D1V);
         }
 
         public override void D2(double U, double V, out gp_Pnt P, out gp_Vec D1U, out gp_Vec D1V, out gp_Vec D2U, out gp_Vec D2V, out gp_Vec D2UV)
@@ -142,15 +142,30 @@ namespace TKG3d
             return basisCurve.IsPeriodic();
 
         }
-
-        public override void Transform(gp_Trsf t)
+       public  void UReverse()
         {
-            throw new NotImplementedException();
+            direction.Reverse();
+            myEvaluator.SetDirection(direction);
         }
 
+        public override void Transform(gp_Trsf T)
+        {
+            loc.Transform(T);
+            direction.Transform(T);
+            basisCurve.Transform(T);
+            if (T.ScaleFactor() * T.HVectorialPart().Determinant() < 0.0) UReverse();
+            myEvaluator.SetDirection(direction);
+            myEvaluator.SetLocation(loc);
+        }
+
+        public gp_Ax1 Axis()
+        {
+
+            return new gp_Ax1(loc, direction);
+        }
         public override Geom_Geometry Copy()
         {
-            throw new NotImplementedException();
+            return new Geom_SurfaceOfRevolution(basisCurve, Axis());
         }
 
         GeomEvaluator_SurfaceOfRevolution myEvaluator;

@@ -17,12 +17,19 @@ namespace TKG3d
             myRotAxis = new(theRevolLoc, theRevolDir);
         }
 
+        //! Change direction of the axis of revolution
+        public void SetDirection(gp_Dir theDirection)
+        { myRotAxis.SetDirection(theDirection); }
+
+        //! Change location of the axis of revolution
+        public void SetLocation(gp_Pnt theLocation)
+        { myRotAxis.SetLocation(theLocation); }
 
         public void D1(
        double theU, double theV,
       out gp_Pnt theValue, out gp_Vec theD1U, out gp_Vec theD1V)
         {
-            
+
             if (myBaseAdaptor != null)
                 myBaseAdaptor.D1(theV, out theValue, out theD1V);
             else
